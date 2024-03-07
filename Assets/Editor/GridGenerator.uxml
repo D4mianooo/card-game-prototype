@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <uie:ObjectField label="Tile Prefab" binding-path="_tilePrefab" />
+    <ui:Vector2IntField label="Size" binding-path="_size" />
+    <ui:Vector2IntField label="Offset" binding-path="_offset" />
+    <ui:FloatField label="Scale" value="5" binding-path="_scale" readonly="false" />
+    <ui:Button text="Generate" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Generate" style="-unity-font: initial; -unity-text-align: middle-center; white-space: nowrap; -unity-background-scale-mode: stretch-to-fill;" />
+    <ui:Button text="Clear" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Clear" />
+</ui:UXML>
