@@ -4,21 +4,31 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Unit : MonoBehaviour {
-        [SerializeField] private string unitName = "Rincewind";
+        [SerializeField] private UnitScriptableObject _unitSO;
 
         public void Update() {
-                Debug.Log("DUPA LIPA");
+                if (Input.GetKeyDown(KeyCode.R)) {
+                        UnitMenuDisplay unitMenuDisplay = GetComponentInChildren<UnitMenuDisplay>(true);
+                        unitMenuDisplay.ToggleMenuCanvas(false);
+                }
+                
         }
         public string GetName() {
-                return unitName;
+                return _unitSO.name;
         }
-        public void ToggleDisplayMenu(Unit unit) {
-                UnitMenuDisplay unitMenuDisplay = GetComponentInChildren<UnitMenuDisplay>(true);
-                unitMenuDisplay.gameObject.SetActive(!unitMenuDisplay.gameObject.activeSelf);
-        }
-        
+        public void DisplayMenu(Unit unit) {
+                UnitMenuDisplay unitMenuDisplay = GetComponentInChildren<UnitMenuDisplay>();
+                if (unit.GetName() == _unitSO.name) {
+                        unitMenuDisplay.ToggleMenuCanvas(true);
+                }
+                else {
+                        unitMenuDisplay.ToggleMenuCanvas(false);
+                        
+                }
+        }       
+                        
         private void OnEnable() {
-                UnitNotifier.CurrentUnitChanged += ToggleDisplayMenu;
+                UnitNotifier.CurrentUnitChanged += DisplayMenu;
         }
 
 }

@@ -11,9 +11,6 @@ public class UnitNotifier : MonoBehaviour {
         {
             set
             {
-                // if (_currentUnit != null) { 
-                //     _currentUnit.ToggleDisplayMenu(_currentUnit);
-                // }
                 _currentUnit = value;
                 if(CurrentUnitChanged == null) return;
                 CurrentUnitChanged.Invoke(_currentUnit);
