@@ -34,7 +34,4 @@ public class BoardGenerator : MonoBehaviour {
             DestroyImmediate(tile);
         });
     }
-    private void Awake() {
-        GenerateGrid();
-    }
 }

@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c83cc861dbc0ff4db09eb16ac51a90a, type: 3}
   m_Name: UnitTest
   m_EditorClassIdentifier: 
-  name: 
+  name: Rincewind

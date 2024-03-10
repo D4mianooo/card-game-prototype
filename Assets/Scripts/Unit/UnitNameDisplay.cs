@@ -10,16 +10,13 @@ public class UnitNameDisplay : MonoBehaviour {
     private void Awake() {
         _text = GetComponent<TMP_Text>();
     }
-    private void UpdateText(string unitName) {
-        _text.text = $"CURRENT UNIT: {unitName}";
-    }
-    private void OnCurrentUnitChanged(Unit unit) {
-        UpdateText(unit.GetName());
-    }
     private void OnEnable() {
-        UnitNotifier.CurrentUnitChanged += OnCurrentUnitChanged;
+        UnitNotifier.SelectedUnitChanged += UpdateText;
     }
     private void OnDisable() {
-        UnitNotifier.CurrentUnitChanged -= OnCurrentUnitChanged;
+        UnitNotifier.SelectedUnitChanged -= UpdateText;
+    }
+    private void UpdateText(Unit unit) {
+        _text.text = $"CURRENT UNIT: {unit.GetName()}";
     }
 }
