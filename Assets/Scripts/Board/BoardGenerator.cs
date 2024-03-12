@@ -11,6 +11,9 @@ public class BoardGenerator : MonoBehaviour {
     [SerializeField] private Vector2Int _offset;
     [SerializeField] private float _scale;
     private bool _activeCoordinates;
+    private void Start() {
+        GenerateGrid();
+    }
     public void GenerateGrid() {
         ClearGrid();
         for (int y = 0; y < _size.x; y++) {

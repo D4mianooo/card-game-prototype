@@ -1,18 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
-
+using Utils;
 public class UnitPlace : MonoBehaviour {
      [SerializeField] private GameObject _unitPrefab;
-    void Update() {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (!Physics.Raycast(ray, out RaycastHit hit)) return;
-        Tile tile = hit.transform.GetComponentInParent<Tile>();
-        if (tile == null) return;
-        
-        if (Input.GetMouseButtonDown(0)) {
-            Instantiate(_unitPrefab, tile.transform.position, Quaternion.identity);
-        }
-    }
+     private void OnMouseOver() {
+         if (Input.GetMouseButtonDown(0)) {
+             Vector3 mouse = Mouse3D.GetMouseWorldPosition(~LayerMask.GetMask("Unit"));
+             Vector3 spawn = Vectors.Round(mouse);
+             Instantiate(_unitPrefab, spawn, Quaternion.identity);
+         }
+     }
 }
