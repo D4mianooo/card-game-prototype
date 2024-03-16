@@ -21,8 +21,6 @@ public class BoardGenerator : MonoBehaviour {
                 Vector3 coordinates = new Vector3((x + _offset.x) * _scale, 0f, (y + _offset.y) * _scale);
                 GameObject tile = Instantiate(_tilePrefab, coordinates, Quaternion.identity, transform);
                 tile.transform.localScale = new Vector3(_scale, tile.transform.localScale.y, _scale);
-                tile.GetComponent<Tile>().UpdateCoordinatesLabel();
-                tile.GetComponent<Tile>().ToggleCoordinates(false);
             }
         }
         
