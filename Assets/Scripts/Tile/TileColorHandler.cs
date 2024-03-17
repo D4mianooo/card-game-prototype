@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TileColorHandler : MonoBehaviour {
+    
     private MeshRenderer _meshRenderer;
     private Color _defaultColor;
     private Color _hoverColor;
+    
     private void Awake() {
         _meshRenderer = GetComponent<MeshRenderer>();
         _defaultColor = _meshRenderer.material.color;

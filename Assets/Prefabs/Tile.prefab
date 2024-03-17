@@ -219,7 +219,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _coordinatesLabel: {fileID: 5607776576152702222}
   _unit: {fileID: 0}
-  _meshRenderer: {fileID: 9094914728949751213}
 --- !u!1 &2218539949794930455
 GameObject:
   m_ObjectHideFlags: 0
@@ -233,6 +232,7 @@ GameObject:
   - component: {fileID: 9094914728949751213}
   - component: {fileID: 8518154417290219741}
   - component: {fileID: 8595372941587327724}
+  - component: {fileID: 1383859771324005726}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -338,3 +338,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bc0e4b7b9e60234ca113d3c90932129, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1383859771324005726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2218539949794930455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3248076a766d1f46b1a751e9323d332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _unitPrefab: {fileID: 8347198710646414255, guid: 878d592e9a4520249b97f6608a87e3af, type: 3}
