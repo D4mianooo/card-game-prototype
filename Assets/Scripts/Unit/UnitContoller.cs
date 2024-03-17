@@ -1,19 +1,32 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
+using Utils;
 
 public class UnitContoller : MonoBehaviour {
-    [FormerlySerializedAs("_layerMask")] [SerializeField] private LayerMask _layerToIgnore;
+    private LayerMask _layerToIgnore;
+    private Tile _currentTile;
+    
+    private void Start() {
+        _layerToIgnore = LayerMask.GetMask("Unit","Ignore Raycast");
+    }
+    private void OnEnable() {
+    }
     private void OnMouseDrag() {
         FollowMouse3D();
     }
-        
     private void OnMouseUp() {
-        Vector3 parentPosition = transform.parent.position;
-        transform.parent.position = new Vector3(Mathf.Round(parentPosition.x), parentPosition.y, Mathf.Round(parentPosition.z));
+        Vector3 position = Mouse3D.GetMouseWorldPosition(~_layerToIgnore);
+        position = Vectors.Round(position);
+        position.y = 0f;
+        Tile tile = Board.instance.GetTile(position);
+        
+        if(tile == null) return;
+        if (tile._isBusy) {
+            return;
+        }
+            
+        tile._isBusy = true;
+        transform.parent.position = position;
     }
     private void FollowMouse3D() {
         transform.parent.position = Mouse3D.GetMouseWorldPosition(~_layerToIgnore);
