@@ -3,33 +3,25 @@ using UnityEngine;
 using Utils;
 
 public class UnitContoller : MonoBehaviour {
-    private LayerMask _layerToIgnore;
     private Tile _currentTile;
     
-    private void Start() {
-        _layerToIgnore = LayerMask.GetMask("Unit","Ignore Raycast");
-    }
-    private void OnEnable() {
-    }
-    private void OnMouseDrag() {
-        FollowMouse3D();
-    }
     private void OnMouseUp() {
-        Vector3 position = Mouse3D.GetMouseWorldPosition(~_layerToIgnore);
-        position = Vectors.Round(position);
-        position.y = 0f;
-        Tile tile = Board.instance.GetTile(position);
+        Vector2 coordinates = Mouse3D.Instance.GetTileCoordinates();
+        Tile tile = Board.Instance.GetTile(coordinates);
         
         if(tile == null) return;
-        if (tile._isBusy) {
+        if(tile._isBusy) {
             return;
         }
             
         tile._isBusy = true;
-        transform.parent.position = position;
+        transform.parent.position = coordinates;
+    }
+    private void OnMouseDrag() {
+        FollowMouse3D();
     }
     private void FollowMouse3D() {
-        transform.parent.position = Mouse3D.GetMouseWorldPosition(~_layerToIgnore);
+        transform.parent.position = Mouse3D.Instance.GetMouseWorldPosition();
     }
 }
     

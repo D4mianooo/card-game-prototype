@@ -29,7 +29,6 @@ public class Board : MonoBehaviour {
                 Vector2 coordinates = new Vector2(coordinates3D.x, coordinates3D.z);
                 Tile instantiate = Instantiate(_tilePrefab, coordinates3D, Quaternion.identity,transform);
                 _tiles.Add(coordinates, instantiate);
-                instantiate.transform.name = $"({coordinates})";
             }
         }
     }
