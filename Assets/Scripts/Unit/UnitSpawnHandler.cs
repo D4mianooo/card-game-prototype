@@ -7,17 +7,18 @@ public class UnitSpawnHandler : MonoBehaviour {
     [SerializeField] private Unit _unit; 
      private void Update() {
          if(Input.GetMouseButtonDown(0)) {
-             Vector3 spawnPosition = Vectors.Round(transform.position);
-             spawnPosition.y = 0f; 
-             Tile tile = Board.instance.GetTile(spawnPosition);
+             Vector2 coordinates = Mouse3D.Instance.GetTileCoordinates();
+             Tile tile = Board.Instance.GetTile(coordinates);
              
              if(tile == null) return;
              if(tile._isBusy) return;
-             SpawnUnit(_unit, spawnPosition);
+             
+             SpawnUnit(_unit, coordinates);
              tile._isBusy = true;
          }
      }
-     private void SpawnUnit(Unit unit, Vector3 spawnPosition) {
-         Instantiate(unit, spawnPosition, Quaternion.identity);
+     private void SpawnUnit(Unit unit, Vector2 coordinates) {
+         Vector3 position = Utils.Board.CoordinateTo3DPosition(coordinates);
+         Instantiate(unit, position, Quaternion.identity);
      }
 }

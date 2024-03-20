@@ -13,5 +13,17 @@ namespace Utils {
 
             return new Vector3(x, y, z);
         }
+        
+        public static Vector2 Round(Vector2 postion) {
+            float x = Mathf.Round(postion.x);
+            float y = Mathf.Round(postion.y);
+
+            return new Vector2(x, y);
+        }
+    }
+    public class Board{
+        public static Vector3 CoordinateTo3DPosition(Vector2 coordinates) {
+            return new Vector3(coordinates.x, 0f, coordinates.y);
+        }
     }
 }
