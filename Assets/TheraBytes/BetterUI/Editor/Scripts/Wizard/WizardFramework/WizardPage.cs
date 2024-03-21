@@ -1,71 +1,68 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace TheraBytes.BetterUi.Editor
-{
-    public abstract class WizardPage
-    {
-        public abstract string NameId { get; }
+namespace TheraBytes.BetterUi.Editor {
+    public abstract class WizardPage {
 
-        protected List<WizardPageElementBase> elements = new List<WizardPageElementBase>();
-        Vector2 scrollPosition;
-
-        protected virtual string NextButtonText { get { return "Next"; } }
+        protected List<WizardPageElementBase> elements = new();
+        private Vector2 scrollPosition;
         protected IWizard wizard;
 
-        public WizardPage(IWizard wizard)
-        {
+        public WizardPage(IWizard wizard) {
             this.wizard = wizard;
         }
+        public abstract string NameId { get; }
 
-        public void Initialize()
-        {
+        protected virtual string NextButtonText => "Next";
+
+        public void Initialize() {
             OnInitialize();
             Load();
         }
 
         protected abstract void OnInitialize();
 
-        public void Add(WizardPageElementBase element)
-        {
+        public void Add(WizardPageElementBase element) {
             elements.Add(element);
-            if(elements.Count == 1)
-            {
+            if (elements.Count == 1) {
                 element.Activate();
             }
         }
 
-        public void DrawGui()
-        {
+        public void DrawGui() {
             BeforeGui();
-            this.scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
             bool disableNext = false;
-            for (int i = 0; i < elements.Count; i++)
-            {
-                var element = elements[i];
+            for (int i = 0; i < elements.Count; i++) {
+                WizardPageElementBase element = elements[i];
 
-                switch (element.State)
-                {
+                switch (element.State) {
                     case WizardElementState.Complete:
                         element.DrawGui();
                         ActivateIfPending(i + 1);
+
+
                         break;
 
                     case WizardElementState.WaitForInput:
                         element.DrawGui();
                         disableNext = true;
+
+
                         break;
 
                     case WizardElementState.Pending:
                         disableNext = true;
+
+
                         break;
 
-                    default: throw new NotImplementedException(); ;
+                    default:
+                        throw new NotImplementedException();
+                        ;
                 }
             }
 
@@ -73,8 +70,7 @@ namespace TheraBytes.BetterUi.Editor
 
 
             EditorGUI.BeginDisabledGroup(disableNext);
-            if(GUILayout.Button(NextButtonText, GUILayout.Height(40)))
-            {
+            if (GUILayout.Button(NextButtonText, GUILayout.Height(40))) {
                 NextButtonClicked();
             }
             EditorGUI.EndDisabledGroup();
@@ -82,42 +78,39 @@ namespace TheraBytes.BetterUi.Editor
             AfterGui();
         }
 
-        protected virtual void NextButtonClicked()
-        {
+        protected virtual void NextButtonClicked() {
             Save();
             wizard.PageFinished(this);
         }
 
-        protected virtual void BeforeGui() { }
-        protected virtual void AfterGui()
-        {
+        protected virtual void BeforeGui() {
+        }
+        protected virtual void AfterGui() {
             string page = string.Format("Page {0} / {1}     ", wizard.CurrentPageNumber + 1, wizard.TotalPageCount);
-            for(int i = 0; i < wizard.TotalPageCount; i++)
-            {
-                page += (i == wizard.CurrentPageNumber) ? "♠ " : "○ ";
+            for (int i = 0; i < wizard.TotalPageCount; i++) {
+                page += i == wizard.CurrentPageNumber ? "♠ " : "○ ";
             }
 
             EditorGUILayout.LabelField(page);
         }
 
-        void ActivateIfPending(int index)
-        {
-            if (index >= elements.Count)
+        private void ActivateIfPending(int index) {
+            if (index >= elements.Count) {
                 return;
+            }
 
-            if (elements[index].State != WizardElementState.Pending)
+
+            if (elements[index].State != WizardElementState.Pending) {
                 return;
+            }
 
             elements[index].Activate();
         }
 
-        void Save()
-        {
-            foreach(var element in elements)
-            {
-                var dataElement = element as IWizardDataElement;
-                if (dataElement != null)
-                {
+        private void Save() {
+            foreach (WizardPageElementBase element in elements) {
+                IWizardDataElement dataElement = element as IWizardDataElement;
+                if (dataElement != null) {
                     string key = dataElement.SerializationKey;
                     string value = dataElement.GetValueAsString();
 
@@ -128,41 +121,35 @@ namespace TheraBytes.BetterUi.Editor
             wizard.PersistentData.Save();
         }
 
-        private void Load()
-        {
+        private void Load() {
             // apply saved data to elements until there is data missing
             int lastCompleteIndex = -1;
-            for(int i = 0; i < elements.Count; i++)
-            {
-                var dataElement = elements[i] as IWizardDataElement;
-                if (dataElement != null)
-                {
+            for (int i = 0; i < elements.Count; i++) {
+                IWizardDataElement dataElement = elements[i] as IWizardDataElement;
+                if (dataElement != null) {
                     string stringValue;
-                    if(wizard.PersistentData.TryGetValue(dataElement.SerializationKey, out stringValue))
-                    {
+                    if (wizard.PersistentData.TryGetValue(dataElement.SerializationKey, out stringValue)) {
                         dataElement.TrySetValue(stringValue);
                         lastCompleteIndex = i;
                     }
-                    else
-                    {
+                    else {
                         break;
                     }
                 }
             }
 
             // mark all elements complete until the last one which could be loaded successfully
-            for(int i = 0; i <= lastCompleteIndex; i++)
-            {
+            for (int i = 0; i <= lastCompleteIndex; i++) {
                 elements[i].MarkComplete();
             }
 
             // activate all upcoming elements until user interaction is required.
-            for(int i = lastCompleteIndex + 1; i < elements.Count; i++)
-            {
+            for (int i = lastCompleteIndex + 1; i < elements.Count; i++) {
                 elements[i].Activate();
 
-                if (elements[i].State == WizardElementState.WaitForInput)
+                if (elements[i].State == WizardElementState.WaitForInput) {
                     break;
+                }
             }
         }
     }

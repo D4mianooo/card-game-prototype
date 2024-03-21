@@ -1,32 +1,34 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class UnitNotifier : MonoBehaviour {
-        
-        private Unit _selectedUnit; 
-        public static event Action<Unit> SelectedUnitChanged;
 
-        public Unit SelectedUnit
+    private Unit _selectedUnit;
+
+    public Unit SelectedUnit
+    {
+        set
         {
-            set {
-                _selectedUnit = value;
-                if(SelectedUnitChanged == null) return;
-                OnSelectedUnitChanged();
+            _selectedUnit = value;
+            if (SelectedUnitChanged == null) {
+                return;
             }
+            OnSelectedUnitChanged();
         }
+    }
 
-        private void OnMouseDown() {
-            SelectUnit();
+    private void OnMouseDown() {
+        SelectUnit();
+    }
+    public static event Action<Unit> SelectedUnitChanged;
+    private void SelectUnit() {
+        SelectedUnit = GetComponentInParent<Unit>();
+    }
+    private void OnSelectedUnitChanged() {
+        if (SelectedUnitChanged == null) {
+            return;
         }
-        private void SelectUnit() {
-            SelectedUnit = GetComponentInParent<Unit>();
-        }
-        private void OnSelectedUnitChanged() {
-            if (SelectedUnitChanged == null) return;
-            SelectedUnitChanged.Invoke(_selectedUnit);
-            
-        }
+        SelectedUnitChanged.Invoke(_selectedUnit);
 
+    }
 }

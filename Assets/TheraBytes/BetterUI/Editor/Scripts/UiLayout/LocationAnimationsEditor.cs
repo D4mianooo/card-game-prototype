@@ -4,30 +4,32 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace TheraBytes.BetterUi.Editor
-{
+namespace TheraBytes.BetterUi.Editor {
     [CustomEditor(typeof(LocationAnimations))]
-    public class LocationAnimationsEditor : UnityEditor.Editor
-    {
-        const string ANY = "[ Any Location ]";
-        const string NONE = "[ None ]";
+    public class LocationAnimationsEditor : UnityEditor.Editor {
+        private const string ANY = "[ Any Location ]";
+        private const string NONE = "[ None ]";
 
-        static readonly GUIContent pushContent = new GUIContent("↑", "Push current location data to Rect Transform.");
-        static readonly GUIContent pullContent = new GUIContent("↓", "Pull Rect Transform to current location data.");
+        private static readonly GUIContent pushContent = new("↑", "Push current location data to Rect Transform.");
+        private static readonly GUIContent pullContent = new("↓", "Pull Rect Transform to current location data.");
+        private readonly HashSet<string> expandedAnimations = new();
+        private readonly HashSet<string> expandedLocations = new();
+        private bool initialStateExpanded = true;
 
-        SerializedProperty useRelativeProp, locationListProp, transitionListProp, startLocProp, startupAniProp, initCallbackProp;
+        private float lastTime;
+        private LocationAnimations locAni;
 
-        bool locationListExpanded = true;
-        bool transitionListExpanded = true;
-        bool initialStateExpanded = true;
-        HashSet<string> expandedAnimations = new HashSet<string>();
-        HashSet<string> expandedLocations = new HashSet<string>();
-        LocationAnimations locAni;
+        private bool locationListExpanded = true;
+        private bool transitionListExpanded = true;
 
-        float lastTime;
+        private SerializedProperty useRelativeProp,
+            locationListProp,
+            transitionListProp,
+            startLocProp,
+            startupAniProp,
+            initCallbackProp;
 
-        protected virtual void OnEnable()
-        {
+        protected virtual void OnEnable() {
             locAni = target as LocationAnimations;
             useRelativeProp = serializedObject.FindProperty("useRelativeLocations");
             locationListProp = serializedObject.FindProperty("locations");
@@ -41,15 +43,14 @@ namespace TheraBytes.BetterUi.Editor
             EditorApplication.update += UpdateAnimation;
         }
 
-        protected virtual void OnDisable()
-        {
+        protected virtual void OnDisable() {
             EditorApplication.update -= UpdateAnimation;
         }
 
-        private void UpdateAnimation()
-        {
-            if (EditorApplication.isPlaying || EditorApplication.isPaused)
+        private void UpdateAnimation() {
+            if (EditorApplication.isPlaying || EditorApplication.isPaused) {
                 return;
+            }
 
             float now = (float)EditorApplication.timeSinceStartup;
             float delta = now - lastTime;
@@ -59,15 +60,12 @@ namespace TheraBytes.BetterUi.Editor
         }
 
 
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
 
             // LOCATIONS
 
-            if (BoldFoldout("Locations", ref locationListExpanded))
-            {
-                for (int i = 0; i < locationListProp.arraySize; i++)
-                {
+            if (BoldFoldout("Locations", ref locationListExpanded)) {
+                for (int i = 0; i < locationListProp.arraySize; i++) {
                     SerializedProperty prop = locationListProp.GetArrayElementAtIndex(i);
 
                     SerializedProperty nameProp = prop.FindPropertyRelative("name");
@@ -79,51 +77,58 @@ namespace TheraBytes.BetterUi.Editor
                     string name = nameProp.stringValue;
 
                     bool expanded = expandedLocations.Contains(name);
-                    if (DrawNameAndDelete(nameProp, locationListProp, LocationNameChanged, ref i, () =>
-                    {
-                        if (GUILayout.Button(EditorGUIUtility.IconContent(expanded ? "d_ViewToolOrbit On" : "d_ViewToolOrbit"),
-                            EditorStyles.label, GUILayout.Width(25), GUILayout.Height(EditorGUIUtility.singleLineHeight)))
-                        {
-                            expanded = !expanded;
+                    if (DrawNameAndDelete(nameProp,
+                            locationListProp,
+                            LocationNameChanged,
+                            ref i,
+                            () =>
+                            {
+                                if (GUILayout.Button(
+                                        EditorGUIUtility.IconContent(expanded ? "d_ViewToolOrbit On" : "d_ViewToolOrbit"),
+                                        EditorStyles.label,
+                                        GUILayout.Width(25),
+                                        GUILayout.Height(EditorGUIUtility.singleLineHeight))) {
+                                    expanded = !expanded;
 
-                            if (expanded)
-                                expandedLocations.Add(name);
-                            else
-                                expandedLocations.Remove(name);
-                        }
+                                    if (expanded) {
+                                        expandedLocations.Add(name);
+                                    }
+                                    else {
+                                        expandedLocations.Remove(name);
+                                    }
+                                }
 
-                        if (GUILayout.Button(pullContent, GUILayout.Width(25)))
-                        {
-                            Undo.RecordObject(locAni, "pull from transform");
-                            var loc = locAni.GetLocation(name);
-                            PullFromTransform(loc);
-                        }
+                                if (GUILayout.Button(pullContent, GUILayout.Width(25))) {
+                                    Undo.RecordObject(locAni, "pull from transform");
+                                    LocationAnimations.LocationData loc = locAni.GetLocation(name);
+                                    PullFromTransform(loc);
+                                }
 
-                        if (GUILayout.Button(pushContent, GUILayout.Width(25)))
-                        {
-                            Undo.RecordObject(locAni.RectTransform, "push to transform");
-                            var loc = locAni.GetLocation(name);
-                            PushToTransform(loc);
-                        }
-                    }))
-                    {
+                                if (GUILayout.Button(pushContent, GUILayout.Width(25))) {
+                                    Undo.RecordObject(locAni.RectTransform, "push to transform");
+                                    LocationAnimations.LocationData loc = locAni.GetLocation(name);
+                                    PushToTransform(loc);
+                                }
+                            })) {
                         continue;
                     }
 
-                    if (expanded)
-                    {
-                        if (locAni.UseRelativeLocations)
-                        {
+                    if (expanded) {
+                        if (locAni.UseRelativeLocations) {
                             RectTransformDataDrawer.OverwritePushPullMethods(
-                                push: (rt, data) => RectTransformData.Combine(data, locAni.ReferenceLocation).PushToTransform(rt),
-                                pull: (rt, data) => data.PullFromData(RectTransformData.Separate(new RectTransformData(rt), locAni.ReferenceLocation)));
+                                (rt, data) => RectTransformData.Combine(data, locAni.ReferenceLocation).PushToTransform(rt),
+                                (rt, data) =>
+                                    data.PullFromData(RectTransformData.Separate(new RectTransformData(rt),
+                                        locAni.ReferenceLocation)));
                         }
 
-                        ScreenConfigConnectionHelper.DrawGui(nameProp.stringValue, configsProp, ref fallbackProp,
-                            drawContent: null,
-                            newElementInitCallback: (n, obj) =>
+                        ScreenConfigConnectionHelper.DrawGui(nameProp.stringValue,
+                            configsProp,
+                            ref fallbackProp,
+                            null,
+                            (n, obj) =>
                             {
-                                var euler = obj.FindPropertyRelative("saveRotationAsEuler");
+                                SerializedProperty euler = obj.FindPropertyRelative("saveRotationAsEuler");
                                 euler.boolValue = true;
                             });
 
@@ -140,17 +145,15 @@ namespace TheraBytes.BetterUi.Editor
                 EditorGUILayout.PropertyField(useRelativeProp);
                 bool postUseRelative = useRelativeProp.boolValue;
 
-                if (preUseRelative != postUseRelative)
-                {
+                if (preUseRelative != postUseRelative) {
                     ConvertLocationSpace(postUseRelative);
                 }
 
                 // "Add Location" button
-                var newObj = DrawAddButton("Add Location", "Location", locationListProp);
-                if (newObj != null)
-                {
-                    var rtd = newObj.FindPropertyRelative("transformFallback");
-                    var euler = rtd.FindPropertyRelative("saveRotationAsEuler");
+                SerializedProperty newObj = DrawAddButton("Add Location", "Location", locationListProp);
+                if (newObj != null) {
+                    SerializedProperty rtd = newObj.FindPropertyRelative("transformFallback");
+                    SerializedProperty euler = rtd.FindPropertyRelative("saveRotationAsEuler");
                     euler.boolValue = true;
                     serializedObject.ApplyModifiedPropertiesWithoutUndo();
                 }
@@ -161,15 +164,13 @@ namespace TheraBytes.BetterUi.Editor
 
             // ANIMATIONS
 
-            List<string> options = locAni.Locations.Select(o => o.Name).ToList();
+            var options = locAni.Locations.Select(o => o.Name).ToList();
             string[] toOptions = options.ToArray();
             options.Insert(0, ANY);
             string[] fromOptions = options.ToArray();
 
-            if (BoldFoldout("Animations", ref transitionListExpanded))
-            {
-                for (int i = 0; i < transitionListProp.arraySize; i++)
-                {
+            if (BoldFoldout("Animations", ref transitionListExpanded)) {
+                for (int i = 0; i < transitionListProp.arraySize; i++) {
                     SerializedProperty prop = transitionListProp.GetArrayElementAtIndex(i);
 
                     SerializedProperty nameProp = prop.FindPropertyRelative("name");
@@ -178,51 +179,50 @@ namespace TheraBytes.BetterUi.Editor
 
                     EditorGUILayout.BeginVertical("box");
 
-                    if (DrawNameAndDelete(nameProp, transitionListProp, TransitionNameChanged, ref i,
-                        () =>
-                        {
-                            bool isAnimating = locAni.RunningAnimation != null && locAni.RunningAnimation.Animation.Name == nameProp.stringValue;
-                            if (GUILayout.Button((isAnimating) ? "■" : "►", GUILayout.Width(20)))
+                    if (DrawNameAndDelete(nameProp,
+                            transitionListProp,
+                            TransitionNameChanged,
+                            ref i,
+                            () =>
                             {
-                                if (isAnimating)
-                                {
-                                    locAni.StopCurrentAnimation();
+                                bool isAnimating = locAni.RunningAnimation != null &&
+                                                   locAni.RunningAnimation.Animation.Name == nameProp.stringValue;
+                                if (GUILayout.Button(isAnimating ? "■" : "►", GUILayout.Width(20))) {
+                                    if (isAnimating) {
+                                        locAni.StopCurrentAnimation();
+                                    }
+                                    else {
+                                        locAni.StartAnimation(nameProp.stringValue);
+                                    }
                                 }
-                                else
-                                {
-                                    locAni.StartAnimation(nameProp.stringValue);
-                                }
-                            }
-                        }))
-                    {
+                            })) {
                         continue;
                     }
 
                     EditorGUILayout.Space();
 
-                    int fromSelection = Array.IndexOf<string>(fromOptions, fromProp.stringValue);
+                    int fromSelection = Array.IndexOf(fromOptions, fromProp.stringValue);
                     if (fromSelection < 0) // any
-                        fromSelection = 0;
-
-                    int newFromSelection = EditorGUILayout.Popup("From", fromSelection, fromOptions);
-                    if (fromSelection != newFromSelection)
                     {
-                        string val = fromOptions[newFromSelection];
-                        fromProp.stringValue = (val != ANY) ? val : "";
+                        fromSelection = 0;
                     }
 
-                    int toSelection = Array.IndexOf<string>(toOptions, toProp.stringValue);
+                    int newFromSelection = EditorGUILayout.Popup("From", fromSelection, fromOptions);
+                    if (fromSelection != newFromSelection) {
+                        string val = fromOptions[newFromSelection];
+                        fromProp.stringValue = val != ANY ? val : "";
+                    }
+
+                    int toSelection = Array.IndexOf(toOptions, toProp.stringValue);
                     int newToSelection = EditorGUILayout.Popup("To", toSelection, toOptions);
-                    if (toSelection != newToSelection)
-                    {
+                    if (toSelection != newToSelection) {
                         toProp.stringValue = toOptions[newToSelection];
                     }
 
 
                     EditorGUI.indentLevel++;
                     bool actionsFoldout = EditorGUILayout.Foldout(expandedAnimations.Contains(nameProp.stringValue), "Advanced");
-                    if (actionsFoldout)
-                    {
+                    if (actionsFoldout) {
                         SerializedProperty curveProp = prop.FindPropertyRelative("curve");
                         SerializedProperty timeScaleProp = prop.FindPropertyRelative("timeScale");
                         SerializedProperty eulerProp = prop.FindPropertyRelative("animateWithEulerRotation");
@@ -236,17 +236,15 @@ namespace TheraBytes.BetterUi.Editor
                         EditorGUILayout.PropertyField(timeScaleProp);
                         float speedAfter = timeScaleProp.floatValue;
 
-                        if (speedBefore != speedAfter && locAni.RunningAnimation != null)
-                        {
+                        if (speedBefore != speedAfter && locAni.RunningAnimation != null) {
                             locAni.RunningAnimation.TimeScale = speedAfter;
                         }
 
                         string[] rotationOptions = { "Quaternion", "Euler" };
-                        int prevIdx = (eulerProp.boolValue) ? 1 : 0;
+                        int prevIdx = eulerProp.boolValue ? 1 : 0;
                         int newIdx = EditorGUILayout.Popup("Rotation Mode", prevIdx, rotationOptions);
-                        if (prevIdx != newIdx)
-                        {
-                            eulerProp.boolValue = (newIdx == 1);
+                        if (prevIdx != newIdx) {
+                            eulerProp.boolValue = newIdx == 1;
                         }
 
                         EditorGUILayout.PropertyField(actionBeforeProp);
@@ -254,8 +252,7 @@ namespace TheraBytes.BetterUi.Editor
                         EditorGUILayout.PropertyField(actionAfterProp);
                         expandedAnimations.Add(nameProp.stringValue);
                     }
-                    else
-                    {
+                    else {
                         expandedAnimations.Remove(nameProp.stringValue);
                     }
                     EditorGUI.indentLevel--;
@@ -265,10 +262,9 @@ namespace TheraBytes.BetterUi.Editor
                     EditorGUILayout.EndVertical();
                 }
 
-                var newAni = DrawAddButton("Add Animation", "Animation", transitionListProp);
-                if (newAni != null)
-                {
-                    var timeScaleProp = newAni.FindPropertyRelative("timeScale");
+                SerializedProperty newAni = DrawAddButton("Add Animation", "Animation", transitionListProp);
+                if (newAni != null) {
+                    SerializedProperty timeScaleProp = newAni.FindPropertyRelative("timeScale");
                     timeScaleProp.floatValue = 1;
                     serializedObject.ApplyModifiedPropertiesWithoutUndo();
                 }
@@ -277,36 +273,37 @@ namespace TheraBytes.BetterUi.Editor
 
 
             // INITIAL STATE
-            if (BoldFoldout("Initial State", ref initialStateExpanded))
-            {
+            if (BoldFoldout("Initial State", ref initialStateExpanded)) {
                 // Start Location
-                int startLocSelection = Array.IndexOf<string>(fromOptions, startLocProp.stringValue);
+                int startLocSelection = Array.IndexOf(fromOptions, startLocProp.stringValue);
                 if (startLocSelection < 0) // any
+                {
                     startLocSelection = 0;
+                }
 
                 int newFromSelection = EditorGUILayout.Popup("Start Location", startLocSelection, fromOptions);
-                if (startLocSelection != newFromSelection)
-                {
+                if (startLocSelection != newFromSelection) {
                     string val = fromOptions[newFromSelection];
-                    startLocProp.stringValue = (val != ANY) ? val : "";
+                    startLocProp.stringValue = val != ANY ? val : "";
                 }
 
 
                 // Start Animation
-                List<string> opt = locAni.Animations.Select(o => o.Name).ToList();
+                var opt = locAni.Animations.Select(o => o.Name).ToList();
                 opt.Insert(0, NONE);
                 string[] startupOptions = opt.ToArray();
 
 
-                int sel = Array.IndexOf<string>(startupOptions, startupAniProp.stringValue);
+                int sel = Array.IndexOf(startupOptions, startupAniProp.stringValue);
                 if (sel < 0) // none
+                {
                     sel = 0;
+                }
 
                 int newSel = EditorGUILayout.Popup("Startup Animation", sel, startupOptions);
-                if (sel != newSel)
-                {
+                if (sel != newSel) {
                     string val = startupOptions[newSel];
-                    startupAniProp.stringValue = (val != NONE) ? val : "";
+                    startupAniProp.stringValue = val != NONE ? val : "";
                     serializedObject.ApplyModifiedProperties();
                 }
 
@@ -318,11 +315,9 @@ namespace TheraBytes.BetterUi.Editor
 
         }
 
-        private void ConvertLocationSpace(bool toRelativeSpace)
-        {
-            foreach (var loc in locAni.Locations)
-            {
-                var rtd = (toRelativeSpace)
+        private void ConvertLocationSpace(bool toRelativeSpace) {
+            foreach (LocationAnimations.LocationData loc in locAni.Locations) {
+                RectTransformData rtd = toRelativeSpace
                     ? RectTransformData.Separate(loc.CurrentTransformData, locAni.ReferenceLocation)
                     : RectTransformData.Combine(loc.CurrentTransformData, locAni.ReferenceLocation);
 
@@ -334,49 +329,39 @@ namespace TheraBytes.BetterUi.Editor
             serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private void PushToTransform(LocationAnimations.LocationData loc)
-        {
-            if (locAni.UseRelativeLocations)
-            {
-                var rtd = RectTransformData.Combine(loc.CurrentTransformData, locAni.ReferenceLocation);
+        private void PushToTransform(LocationAnimations.LocationData loc) {
+            if (locAni.UseRelativeLocations) {
+                RectTransformData rtd = RectTransformData.Combine(loc.CurrentTransformData, locAni.ReferenceLocation);
                 rtd.PushToTransform(locAni.RectTransform);
             }
-            else
-            {
+            else {
                 loc.CurrentTransformData.PushToTransform(locAni.RectTransform);
             }
         }
 
-        private void PullFromTransform(LocationAnimations.LocationData loc)
-        {
-            if (locAni.UseRelativeLocations)
-            {
-                var rtd = RectTransformData.Separate(new RectTransformData(locAni.RectTransform), locAni.ReferenceLocation);
+        private void PullFromTransform(LocationAnimations.LocationData loc) {
+            if (locAni.UseRelativeLocations) {
+                RectTransformData rtd =
+                    RectTransformData.Separate(new RectTransformData(locAni.RectTransform), locAni.ReferenceLocation);
                 loc.CurrentTransformData.PullFromData(rtd);
             }
-            else
-            {
+            else {
                 loc.CurrentTransformData.PullFromTransform(locAni.RectTransform);
             }
         }
 
-        private void LocationNameChanged(int index, string before, string after)
-        {
-            if (locAni.Locations.Any(o => o.Name == before))
-            {
+        private void LocationNameChanged(int index, string before, string after) {
+            if (locAni.Locations.Any(o => o.Name == before)) {
                 // the name is still valid.
                 return;
             }
 
-            foreach (var tr in locAni.Animations)
-            {
-                if (tr.From == before)
-                {
+            foreach (LocationAnimations.Animation tr in locAni.Animations) {
+                if (tr.From == before) {
                     tr.From = after;
                 }
 
-                if (tr.To == before)
-                {
+                if (tr.To == before) {
                     tr.To = after;
                 }
             }
@@ -384,46 +369,39 @@ namespace TheraBytes.BetterUi.Editor
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void TransitionNameChanged(int index, string before, string after)
-        {
-            if (locAni.Animations.Any(o => o.Name == before))
-            {
+        private void TransitionNameChanged(int index, string before, string after) {
+            if (locAni.Animations.Any(o => o.Name == before)) {
                 // the name is still valid.
                 return;
             }
 
-            if (locAni.StartUpAnimation == before)
-            {
+            if (locAni.StartUpAnimation == before) {
                 locAni.StartUpAnimation = after;
             }
 
             serializedObject.ApplyModifiedProperties();
         }
 
-        bool BoldFoldout(string text, ref bool expanded)
-        {
-            string prefix = (expanded) ? "▼" : "►";
-            if (GUILayout.Button(string.Format("{0} {1}", prefix, text), EditorStyles.boldLabel))
-            {
+        private bool BoldFoldout(string text, ref bool expanded) {
+            string prefix = expanded ? "▼" : "►";
+            if (GUILayout.Button(string.Format("{0} {1}", prefix, text), EditorStyles.boldLabel)) {
                 expanded = !expanded;
             }
+
 
             return expanded;
         }
 
-        SerializedProperty DrawAddButton(string text, string namePrefix, SerializedProperty prop)
-        {
+        private SerializedProperty DrawAddButton(string text, string namePrefix, SerializedProperty prop) {
             SerializedProperty result = null;
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button(text, GUILayout.Width(150)))
-            {
+            if (GUILayout.Button(text, GUILayout.Width(150))) {
                 prop.InsertArrayElementAtIndex(prop.arraySize);
 
                 result = prop.GetArrayElementAtIndex(prop.arraySize - 1);
                 SerializedProperty nameProp = result.FindPropertyRelative("name");
-                if (nameProp != null)
-                {
+                if (nameProp != null) {
                     nameProp.stringValue = string.Format("{0} {1}", namePrefix, prop.arraySize);
                 }
 
@@ -431,11 +409,12 @@ namespace TheraBytes.BetterUi.Editor
             }
             EditorGUILayout.EndHorizontal();
 
+
             return result;
         }
 
-        bool DrawNameAndDelete(SerializedProperty nameProp, SerializedProperty listProp, Action<int, string, string> nameChanged, ref int idx, Action drawNextToText = null)
-        {
+        private bool DrawNameAndDelete(SerializedProperty nameProp, SerializedProperty listProp,
+                                       Action<int, string, string> nameChanged, ref int idx, Action drawNextToText = null) {
             EditorGUILayout.BeginHorizontal();
 
             string nameBefore = nameProp.stringValue;
@@ -444,33 +423,36 @@ namespace TheraBytes.BetterUi.Editor
 
             string nameAfter = nameProp.stringValue;
 
-            if (nameBefore != nameAfter && nameChanged != null)
-            {
+            if (nameBefore != nameAfter && nameChanged != null) {
                 int index = idx;
                 serializedObject.ApplyModifiedProperties();
                 nameChanged(index, nameBefore, nameAfter);
             }
 
-            if (drawNextToText != null)
-            {
+            if (drawNextToText != null) {
                 drawNextToText();
             }
 
             GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button("x", GUILayout.Width(20)))
-            {
-                if (EditorUtility.DisplayDialog("Delete Item", string.Format("Do you really want to delete the item '{0}'?", nameProp.stringValue), "Yes", "No"))
-                {
+            if (GUILayout.Button("x", GUILayout.Width(20))) {
+                if (EditorUtility.DisplayDialog("Delete Item",
+                        string.Format("Do you really want to delete the item '{0}'?", nameProp.stringValue),
+                        "Yes",
+                        "No")) {
                     listProp.DeleteArrayElementAtIndex(idx);
                     idx--;
                     serializedObject.ApplyModifiedPropertiesWithoutUndo();
                     EditorGUILayout.EndHorizontal();
+
+
                     return true;
                 }
             }
 
             EditorGUILayout.EndHorizontal();
+
+
             return false;
         }
     }

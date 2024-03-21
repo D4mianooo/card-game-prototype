@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace TheraBytes.BetterUi.Editor.AlignDistribute
-{
-    public class AlignDistributeWindow : EditorWindow
-    {
+namespace TheraBytes.BetterUi.Editor.AlignDistribute {
+    public class AlignDistributeWindow : EditorWindow {
         private static ActiveWindow activeWindow = ActiveWindow.Align;
         private static AlignTo alignTo = AlignTo.SelectionBounds;
         internal static DistributeTo distributeTo = DistributeTo.SelectionBounds;
@@ -15,26 +11,18 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
         private static SortOrder sortOrder;
         internal static AnchorMode anchorMode = AnchorMode.FollowObject;
 
-        private static readonly string[] alignToOptions = System.Enum.GetNames(typeof(AlignTo));
-        private static readonly string[] distanceOptions = System.Enum.GetNames(typeof(DistanceOption));
-        private static readonly string[] anchorModeOptions = System.Enum.GetNames(typeof(AnchorMode));
+        private static readonly string[] alignToOptions = Enum.GetNames(typeof(AlignTo));
+        private static readonly string[] distanceOptions = Enum.GetNames(typeof(DistanceOption));
+        private static readonly string[] anchorModeOptions = Enum.GetNames(typeof(AnchorMode));
 
-        private static bool showPadding = true;
-        private static float paddingLeftBottomPixels = 0f;
-        private static float paddingRightTopPixels = 0f;
+        private static readonly bool showPadding = true;
+        private static float paddingLeftBottomPixels;
+        private static float paddingRightTopPixels;
 
         private Texture2D alignLeft, alignCenter, alignRight, alignBottom, alignMiddle, alignTop;
         private Texture2D distributeHorizontal, distributeVertical;
 
-        [MenuItem("Tools/Better UI/Align and Distribute", false, 62)]
-        public static void ShowWindow()
-        {
-            EditorWindow window = GetWindow(typeof(AlignDistributeWindow), false, "Align/Distribute");
-            window.minSize = new Vector2(270, 350);
-        }
-
-        private void OnEnable()
-        {
+        private void OnEnable() {
             alignLeft = Resources.Load<Texture2D>("allign_left");
             alignCenter = Resources.Load<Texture2D>("allign_center");
             alignRight = Resources.Load<Texture2D>("allign_right");
@@ -46,13 +34,7 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
             distributeVertical = Resources.Load<Texture2D>("distribute_vertically");
         }
 
-        private void OnSelectionChange()
-        {
-            Repaint();
-        }
-
-        private void OnGUI()
-        {
+        private void OnGUI() {
             EditorGUIUtility.labelWidth = 2f;
             EditorGUILayout.Space();
             DrawModeSelection();
@@ -60,13 +42,14 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
 
             DrawSelectionInfo();
 
-            switch (activeWindow)
-            {
+            switch (activeWindow) {
                 case ActiveWindow.Align:
                     DrawAlignButtons();
                     EditorGUILayout.Space();
 
                     DrawAlignTo();
+
+
                     break;
 
                 case ActiveWindow.Distribute:
@@ -83,6 +66,8 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
                     EditorGUILayout.Space();
 
                     DrawDistanceOptions();
+
+
                     break;
             }
 
@@ -92,75 +77,89 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
             EditorGUIUtility.labelWidth = 0f;
         }
 
-        private void DrawModeSelection()
-        {
+        private void OnSelectionChange() {
+            Repaint();
+        }
+
+        [MenuItem("Tools/Better UI/Align and Distribute", false, 62)]
+        public static void ShowWindow() {
+            EditorWindow window = GetWindow(typeof(AlignDistributeWindow), false, "Align/Distribute");
+            window.minSize = new Vector2(270, 350);
+        }
+
+        private void DrawModeSelection() {
             EditorGUILayout.BeginHorizontal();
 
-            if (GUILayout.Toggle((activeWindow == ActiveWindow.Align), "Align", EditorStyles.miniButtonLeft))
-            {
+            if (GUILayout.Toggle(activeWindow == ActiveWindow.Align, "Align", EditorStyles.miniButtonLeft)) {
                 activeWindow = ActiveWindow.Align;
             }
 
-            if (GUILayout.Toggle((activeWindow == ActiveWindow.Distribute), "Distribute", EditorStyles.miniButtonRight))
-            {
+            if (GUILayout.Toggle(activeWindow == ActiveWindow.Distribute, "Distribute", EditorStyles.miniButtonRight)) {
                 activeWindow = ActiveWindow.Distribute;
             }
 
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawSelectionInfo()
-        {
+        private void DrawSelectionInfo() {
             SelectionStatus selectionStatus = Utility.IsSelectionValid();
-            if (selectionStatus != SelectionStatus.Valid)
-            {
+            if (selectionStatus != SelectionStatus.Valid) {
                 DrawInvalidSelectionInfo(selectionStatus);
             }
-            else
-            {
-                Transform[] selection = Selection.transforms;
+            else {
+                var selection = Selection.transforms;
 
-                string label = (selection.Length == 1) ? selection[0].name : string.Format("{0} UI Elements", selection.Length);
+                string label = selection.Length == 1 ? selection[0].name : string.Format("{0} UI Elements", selection.Length);
                 EditorGUILayout.LabelField(label, EditorStyles.centeredGreyMiniLabel);
             }
 
             EditorGUILayout.Space();
         }
 
-        private void DrawInvalidSelectionInfo(SelectionStatus selectionStatus)
-        {
+        private void DrawInvalidSelectionInfo(SelectionStatus selectionStatus) {
             GUIStyle warn = GUI.skin.GetStyle("WarningOverlay");
-            
+
             EditorGUI.BeginDisabledGroup(true);
 
             string message;
 
-            switch (selectionStatus)
-            {
+            switch (selectionStatus) {
                 case SelectionStatus.NothingSelected:
                     message = "Nothing selected";
+
+
                     break;
 
                 case SelectionStatus.ParentIsNull:
                 case SelectionStatus.ParentIsNoRectTransform:
                     message = "Objects must be inside a Canvas.";
+
+
                     break;
 
                 case SelectionStatus.ContainsNoRectTransform:
                     message = "All objects must have a RectTransform.";
+
+
                     break;
 
                 case SelectionStatus.UnequalParents:
                     message = "Objects must have the same parent.";
+
+
                     break;
 
                 case SelectionStatus.Valid:
                     // Function should never be called when selection is valid.
                     message = "Unknown problem discovered.";
+
+
                     break;
 
                 default:
                     Debug.LogError("Invalid SelectionStatus: " + selectionStatus);
+
+
                     throw new ArgumentOutOfRangeException();
             }
 
@@ -171,21 +170,19 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawAlignButtons()
-        {
+        private void DrawAlignButtons() {
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button(new GUIContent(alignLeft, "Align to the left"), GUILayout.Width(60f), GUILayout.Height(60f)))
-            {
+            if (GUILayout.Button(new GUIContent(alignLeft, "Align to the left"), GUILayout.Width(60f), GUILayout.Height(60f))) {
                 Align.AlignSelection(AlignMode.Left, alignTo);
             }
-            if (GUILayout.Button(new GUIContent(alignCenter, "Align to the center"), GUILayout.Width(60f), GUILayout.Height(60f)))
-            {
+            if (GUILayout.Button(new GUIContent(alignCenter, "Align to the center"),
+                    GUILayout.Width(60f),
+                    GUILayout.Height(60f))) {
                 Align.AlignSelection(AlignMode.Vertical, alignTo);
             }
-            if (GUILayout.Button(new GUIContent(alignRight, "Align to the right"), GUILayout.Width(60f), GUILayout.Height(60f)))
-            {
+            if (GUILayout.Button(new GUIContent(alignRight, "Align to the right"), GUILayout.Width(60f), GUILayout.Height(60f))) {
                 Align.AlignSelection(AlignMode.Right, alignTo);
             }
 
@@ -195,16 +192,17 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button(new GUIContent(alignTop, "Align to the top"), GUILayout.Width(60f), GUILayout.Height(60f)))
-            {
+            if (GUILayout.Button(new GUIContent(alignTop, "Align to the top"), GUILayout.Width(60f), GUILayout.Height(60f))) {
                 Align.AlignSelection(AlignMode.Top, alignTo);
             }
-            if (GUILayout.Button(new GUIContent(alignMiddle, "Align to the middle"), GUILayout.Width(60f), GUILayout.Height(60f)))
-            {
+            if (GUILayout.Button(new GUIContent(alignMiddle, "Align to the middle"),
+                    GUILayout.Width(60f),
+                    GUILayout.Height(60f))) {
                 Align.AlignSelection(AlignMode.Horizontal, alignTo);
             }
-            if (GUILayout.Button(new GUIContent(alignBottom, "Align to the bottom"), GUILayout.Width(60f), GUILayout.Height(60f)))
-            {
+            if (GUILayout.Button(new GUIContent(alignBottom, "Align to the bottom"),
+                    GUILayout.Width(60f),
+                    GUILayout.Height(60f))) {
                 Align.AlignSelection(AlignMode.Bottom, alignTo);
             }
 
@@ -212,32 +210,35 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawDistributeButtons()
-        {
+        private void DrawDistributeButtons() {
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button(new GUIContent(distributeHorizontal, "Distribute horizontally"), GUILayout.Width(60f), GUILayout.Height(60f)))
-            {
-                if (Selection.GetTransforms(SelectionMode.Unfiltered).Length > 1)
-                {
-                    Distribute.DistributeSelection(AlignMode.Horizontal, distanceOption, sortOrder,
-                        paddingLeftBottomPixels, paddingRightTopPixels);
+            if (GUILayout.Button(new GUIContent(distributeHorizontal, "Distribute horizontally"),
+                    GUILayout.Width(60f),
+                    GUILayout.Height(60f))) {
+                if (Selection.GetTransforms(SelectionMode.Unfiltered).Length > 1) {
+                    Distribute.DistributeSelection(AlignMode.Horizontal,
+                        distanceOption,
+                        sortOrder,
+                        paddingLeftBottomPixels,
+                        paddingRightTopPixels);
                 }
-                else
-                {
+                else {
                     Align.AlignSelection(AlignMode.Horizontal, AlignTo.Parent);
                 }
             }
-            if (GUILayout.Button(new GUIContent(distributeVertical, "Distribute vertically"), GUILayout.Width(60f), GUILayout.Height(60f)))
-            {
-                if (Selection.GetTransforms(SelectionMode.Unfiltered).Length > 1)
-                {
-                    Distribute.DistributeSelection(AlignMode.Vertical, distanceOption, sortOrder,
-                        paddingLeftBottomPixels, paddingRightTopPixels);
+            if (GUILayout.Button(new GUIContent(distributeVertical, "Distribute vertically"),
+                    GUILayout.Width(60f),
+                    GUILayout.Height(60f))) {
+                if (Selection.GetTransforms(SelectionMode.Unfiltered).Length > 1) {
+                    Distribute.DistributeSelection(AlignMode.Vertical,
+                        distanceOption,
+                        sortOrder,
+                        paddingLeftBottomPixels,
+                        paddingRightTopPixels);
                 }
-                else
-                {
+                else {
                     Align.AlignSelection(AlignMode.Vertical, AlignTo.Parent);
                 }
             }
@@ -246,23 +247,20 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawDistanceOptions()
-        {
+        private void DrawDistanceOptions() {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Align by", GUILayout.ExpandWidth(false));
-            distanceOption = (DistanceOption) EditorGUILayout.Popup((int)distanceOption, distanceOptions);
+            distanceOption = (DistanceOption)EditorGUILayout.Popup((int)distanceOption, distanceOptions);
 
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawPadding()
-        {
+        private void DrawPadding() {
             EditorGUILayout.BeginHorizontal();
             {
                 EditorGUILayout.BeginVertical();
                 EditorGUILayout.LabelField("Padding");
-                if (showPadding)
-                {
+                if (showPadding) {
                     EditorGUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                     GUILayout.Space(25);
                     EditorGUILayout.LabelField("Left / Bottom", GUILayout.Width(80));
@@ -280,19 +278,16 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawOrderOptions()
-        {
+        private void DrawOrderOptions() {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Sorting Order", GUILayout.Width(100f));
 
             EditorGUILayout.BeginVertical();
             {
-                if (GUILayout.Toggle((sortOrder == SortOrder.Positional), "Positional", "Radio"))
-                {
+                if (GUILayout.Toggle(sortOrder == SortOrder.Positional, "Positional", "Radio")) {
                     sortOrder = SortOrder.Positional;
                 }
-                if (GUILayout.Toggle((sortOrder == SortOrder.Hierarchical), "Hierarchical", "Radio"))
-                {
+                if (GUILayout.Toggle(sortOrder == SortOrder.Hierarchical, "Hierarchical", "Radio")) {
                     sortOrder = SortOrder.Hierarchical;
                 }
             }
@@ -300,19 +295,16 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawDistributeTo()
-        {
+        private void DrawDistributeTo() {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Distribute along", GUILayout.Width(100f));
 
             EditorGUILayout.BeginVertical();
             {
-                if (GUILayout.Toggle(distributeTo == DistributeTo.SelectionBounds, "Selection Bounds", "Radio"))
-                {
+                if (GUILayout.Toggle(distributeTo == DistributeTo.SelectionBounds, "Selection Bounds", "Radio")) {
                     distributeTo = DistributeTo.SelectionBounds;
                 }
-                if (GUILayout.Toggle(distributeTo == DistributeTo.Parent, "Parent", "Radio"))
-                {
+                if (GUILayout.Toggle(distributeTo == DistributeTo.Parent, "Parent", "Radio")) {
                     distributeTo = DistributeTo.Parent;
                 }
             }
@@ -320,8 +312,7 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawAlignTo()
-        {
+        private void DrawAlignTo() {
             EditorGUILayout.BeginHorizontal();
 
             EditorGUILayout.LabelField("Align to", GUILayout.ExpandWidth(false));
@@ -331,8 +322,7 @@ namespace TheraBytes.BetterUi.Editor.AlignDistribute
         }
 
 
-        private void DrawAnchorMode()
-        {
+        private void DrawAnchorMode() {
             EditorGUILayout.BeginHorizontal();
 
             EditorGUILayout.LabelField("Anchors", GUILayout.ExpandWidth(false));

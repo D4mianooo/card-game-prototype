@@ -1,6 +1,5 @@
-
 using UnityEngine;
 
-public class Tile : MonoBehaviour { 
-    public bool _isBusy = false;
+public class Tile : MonoBehaviour {
+    public bool _isBusy;
 }

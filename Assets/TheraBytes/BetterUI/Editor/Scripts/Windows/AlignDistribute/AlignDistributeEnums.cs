@@ -1,71 +1,58 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace TheraBytes.BetterUi.Editor.AlignDistribute
-{
-    public enum ActiveWindow
-    {
+﻿namespace TheraBytes.BetterUi.Editor.AlignDistribute {
+    public enum ActiveWindow {
         Align,
-        Distribute,
+        Distribute
     }
 
-    public enum AlignTo
-    {
+    public enum AlignTo {
         SelectionBounds,
         Parent,
         FirstInHierarchy,
         LastInHierarchy,
         BiggestObject,
-        SmallestObject,
+        SmallestObject
     }
 
-    public enum DistributeTo
-    {
+    public enum DistributeTo {
         SelectionBounds,
-        Parent,
+        Parent
     }
 
-    public enum DistanceOption
-    {
+    public enum DistanceOption {
         Space,
         Pivot,
         LeftBottom,
         Center,
-        RightTop,
+        RightTop
     }
 
-    public enum SortOrder
-    {
+    public enum SortOrder {
         Positional,
-        Hierarchical,
+        Hierarchical
     }
 
-    public enum AlignMode
-    {
+    public enum AlignMode {
         Top,
         Horizontal,
         Bottom,
 
         Left,
         Vertical,
-        Right,
+        Right
     }
 
-    public enum AnchorMode
-    {
+    public enum AnchorMode {
         FollowObject,
         SnapToBorder,
-        StayAtCurrentPosition,
+        StayAtCurrentPosition
     }
 
-    public enum SelectionStatus
-    {
+    public enum SelectionStatus {
         Valid,
         NothingSelected,
         ParentIsNull,
         ParentIsNoRectTransform,
         ContainsNoRectTransform,
-        UnequalParents,
+        UnequalParents
     }
 }

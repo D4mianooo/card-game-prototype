@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEditor;
+﻿using UnityEditor;
 
-namespace TheraBytes.BetterUi.Editor
-{
-    [CustomEditor(typeof(TransformScaler)), CanEditMultipleObjects]
-    public class TransformScalerEditor : UnityEditor.Editor
-    {
-        SerializedProperty scaleSizerFallback, scaleSizerCollection;
+namespace TheraBytes.BetterUi.Editor {
+    [CustomEditor(typeof(TransformScaler))] [CanEditMultipleObjects]
+    public class TransformScalerEditor : UnityEditor.Editor {
+        private SerializedProperty scaleSizerFallback, scaleSizerCollection;
 
-        void OnEnable()
-        {
+        private void OnEnable() {
             scaleSizerFallback = serializedObject.FindProperty("scaleSizerFallback");
             scaleSizerCollection = serializedObject.FindProperty("customScaleSizers");
         }
 
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
             ScreenConfigConnectionHelper.DrawSizerGui("Scale Settings", scaleSizerCollection, ref scaleSizerFallback);
         }
     }

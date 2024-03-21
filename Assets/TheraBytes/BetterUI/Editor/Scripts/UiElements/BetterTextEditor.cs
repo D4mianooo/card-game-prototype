@@ -1,38 +1,49 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEditor;
 using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace TheraBytes.BetterUi.Editor
-{
-    [CustomEditor(typeof(BetterText), true), CanEditMultipleObjects]
-    public class BetterTextEditor : GraphicEditor
-    {
-        SerializedProperty text;
-        SerializedProperty sizerFallback, sizerCollection, fitting;
-        SerializedProperty font, style, lineSpace, rich, align, geoAlign, overflowH, overflowV;
-        SerializedProperty maskable;
+namespace TheraBytes.BetterUi.Editor {
+    [CustomEditor(typeof(BetterText), true)] [CanEditMultipleObjects]
+    public class BetterTextEditor : GraphicEditor {
+        private SerializedProperty font, style, lineSpace, rich, align, geoAlign, overflowH, overflowV;
+        private SerializedProperty maskable;
+        private SerializedProperty sizerFallback, sizerCollection, fitting;
+        private SerializedProperty text;
+
+        protected override void OnEnable() {
+            base.OnEnable();
+            text = serializedObject.FindProperty("m_Text");
+
+            sizerFallback = serializedObject.FindProperty("fontSizerFallback");
+            sizerCollection = serializedObject.FindProperty("customFontSizers");
+            fitting = serializedObject.FindProperty("fitting");
+
+            SerializedProperty fontData = serializedObject.FindProperty("m_FontData");
+            font = fontData.FindPropertyRelative("m_Font");
+            style = fontData.FindPropertyRelative("m_FontStyle");
+            lineSpace = fontData.FindPropertyRelative("m_LineSpacing");
+            rich = fontData.FindPropertyRelative("m_RichText");
+            align = fontData.FindPropertyRelative("m_Alignment");
+            geoAlign = fontData.FindPropertyRelative("m_AlignByGeometry");
+            overflowH = fontData.FindPropertyRelative("m_HorizontalOverflow");
+            overflowV = fontData.FindPropertyRelative("m_VerticalOverflow");
+            maskable = serializedObject.FindProperty("m_Maskable");
+        }
 
         [MenuItem("CONTEXT/Text/♠ Make Better")]
-        public static void MakeBetter(MenuCommand command)
-        {
+        public static void MakeBetter(MenuCommand command) {
             Text txt = command.context as Text;
             int size = txt.fontSize;
             bool bestFit = txt.resizeTextForBestFit;
             int min = txt.resizeTextMinSize;
             int max = txt.resizeTextMaxSize;
 
-            var newTxt = Betterizer.MakeBetter<Text, BetterText>(txt);
+            Text newTxt = Betterizer.MakeBetter<Text, BetterText>(txt);
 
-            var betterTxt = newTxt as BetterText;
-            if(betterTxt != null)
-            {
-                if(bestFit)
-                {
+            BetterText betterTxt = newTxt as BetterText;
+            if (betterTxt != null) {
+                if (bestFit) {
                     betterTxt.FontSizer.MinSize = min;
                     betterTxt.FontSizer.MaxSize = max;
                 }
@@ -43,33 +54,11 @@ namespace TheraBytes.BetterUi.Editor
             Betterizer.Validate(newTxt);
         }
 
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            this.text = base.serializedObject.FindProperty("m_Text");
+        public override void OnInspectorGUI() {
+            BetterText obj = target as BetterText;
 
-            this.sizerFallback = base.serializedObject.FindProperty("fontSizerFallback");
-            this.sizerCollection = base.serializedObject.FindProperty("customFontSizers");
-            this.fitting = base.serializedObject.FindProperty("fitting");
-
-            var fontData = base.serializedObject.FindProperty("m_FontData");
-            this.font = fontData.FindPropertyRelative("m_Font");
-            this.style = fontData.FindPropertyRelative("m_FontStyle");
-            this.lineSpace = fontData.FindPropertyRelative("m_LineSpacing");
-            this.rich = fontData.FindPropertyRelative("m_RichText");
-            this.align = fontData.FindPropertyRelative("m_Alignment");
-            this.geoAlign = fontData.FindPropertyRelative("m_AlignByGeometry");
-            this.overflowH = fontData.FindPropertyRelative("m_HorizontalOverflow");
-            this.overflowV = fontData.FindPropertyRelative("m_VerticalOverflow"); 
-            this.maskable = base.serializedObject.FindProperty("m_Maskable");
-        }
-        
-        public override void OnInspectorGUI()
-        {
-            var obj = base.target as BetterText;
-
-            base.serializedObject.Update();
-            EditorGUILayout.PropertyField(this.text);
+            serializedObject.Update();
+            EditorGUILayout.PropertyField(text);
 
             EditorGUILayout.LabelField("Better Sizing", EditorStyles.boldLabel);
 
@@ -78,7 +67,7 @@ namespace TheraBytes.BetterUi.Editor
             EditorGUI.indentLevel += 1;
             EditorGUILayout.PropertyField(fitting);
             EditorGUI.indentLevel -= 1;
-            
+
             EditorGUILayout.LabelField("Character", EditorStyles.boldLabel);
 
             EditorGUI.indentLevel += 1;
@@ -94,155 +83,155 @@ namespace TheraBytes.BetterUi.Editor
             //EditorGUILayout.PropertyField(align);
             DrawAnchorIcons(align, obj.alignment);
 
-            if(geoAlign != null) // not present in old unity versions
+            if (geoAlign != null) // not present in old unity versions
+            {
                 EditorGUILayout.PropertyField(geoAlign);
+            }
 
             EditorGUILayout.PropertyField(overflowH);
             EditorGUILayout.PropertyField(overflowV);
             EditorGUI.indentLevel -= 1;
 
-            base.AppearanceControlsGUI();
-            base.RaycastControlsGUI();
+            AppearanceControlsGUI();
+            RaycastControlsGUI();
 
-            if(maskable != null)
-            {
+            if (maskable != null) {
                 EditorGUILayout.PropertyField(maskable);
             }
 
-            base.serializedObject.ApplyModifiedProperties();
+            serializedObject.ApplyModifiedProperties();
         }
-        
-        void DrawAnchorIcons(SerializedProperty prop, TextAnchor anchor)
-        {
+
+        private void DrawAnchorIcons(SerializedProperty prop, TextAnchor anchor) {
             bool hLeft = anchor == TextAnchor.LowerLeft || anchor == TextAnchor.MiddleLeft || anchor == TextAnchor.UpperLeft;
-            bool hCenter = anchor == TextAnchor.LowerCenter || anchor == TextAnchor.MiddleCenter|| anchor == TextAnchor.UpperCenter;
+            bool hCenter = anchor == TextAnchor.LowerCenter || anchor == TextAnchor.MiddleCenter ||
+                           anchor == TextAnchor.UpperCenter;
             bool hRight = anchor == TextAnchor.LowerRight || anchor == TextAnchor.MiddleRight || anchor == TextAnchor.UpperRight;
 
-            bool vTop    = anchor == TextAnchor.UpperLeft || anchor == TextAnchor.UpperCenter || anchor == TextAnchor.UpperRight;
-            bool vCenter = anchor == TextAnchor.MiddleLeft || anchor == TextAnchor.MiddleCenter || anchor == TextAnchor.MiddleRight;
+            bool vTop = anchor == TextAnchor.UpperLeft || anchor == TextAnchor.UpperCenter || anchor == TextAnchor.UpperRight;
+            bool vCenter = anchor == TextAnchor.MiddleLeft || anchor == TextAnchor.MiddleCenter ||
+                           anchor == TextAnchor.MiddleRight;
             bool vBottom = anchor == TextAnchor.LowerLeft || anchor == TextAnchor.LowerCenter || anchor == TextAnchor.LowerRight;
-            
+
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Alignment", GUILayout.Width(EditorGUIUtility.labelWidth - 12), GUILayout.ExpandWidth(false));
-           
+            EditorGUILayout.LabelField("Alignment",
+                GUILayout.Width(EditorGUIUtility.labelWidth - 12),
+                GUILayout.ExpandWidth(false));
+
             bool hLeft2 = DrawAlignIcon(Styles.LeftAlignActive, Styles.LeftAlign, TextAlignment.Left, hLeft);
             bool hCenter2 = DrawAlignIcon(Styles.CenterAlignActive, Styles.CenterAlign, TextAlignment.Center, hCenter);
             bool hRight2 = DrawAlignIcon(Styles.RightAlignActive, Styles.RightAlign, TextAlignment.Right, hRight);
-            
-            if(hLeft != hLeft2 || hCenter != hCenter2 || hRight != hRight2)
-            {
-                hLeft = (hLeft == hLeft2) ? false : hLeft2;
-                hCenter = (hCenter == hCenter2) ? false : hCenter2;
-                hRight = (hRight == hRight2) ? false : hRight2;
+
+            if (hLeft != hLeft2 || hCenter != hCenter2 || hRight != hRight2) {
+                hLeft = hLeft == hLeft2 ? false : hLeft2;
+                hCenter = hCenter == hCenter2 ? false : hCenter2;
+                hRight = hRight == hRight2 ? false : hRight2;
             }
-            
+
 
             EditorGUILayout.Separator();
 
             bool vTop2 = DrawAlignIcon(Styles.TopAlignActive, Styles.TopAlign, TextAlignment.Left, vTop);
             bool vCenter2 = DrawAlignIcon(Styles.MiddleAlignActive, Styles.MiddleAlign, TextAlignment.Center, vCenter);
             bool vBottom2 = DrawAlignIcon(Styles.BottomAlignActive, Styles.BottomAlign, TextAlignment.Right, vBottom);
-            
-            if(vTop != vTop2 || vCenter != vCenter2 || vBottom != vBottom2)
-            {
-                vTop = (vTop == vTop2) ? false : vTop2;
-                vCenter = (vCenter == vCenter2) ? false : vCenter2;
-                vBottom = (vBottom == vBottom2) ? false : vBottom2;
+
+            if (vTop != vTop2 || vCenter != vCenter2 || vBottom != vBottom2) {
+                vTop = vTop == vTop2 ? false : vTop2;
+                vCenter = vCenter == vCenter2 ? false : vCenter2;
+                vBottom = vBottom == vBottom2 ? false : vBottom2;
             }
 
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
 
             TextAnchor prev = anchor;
-            if(hLeft)
-            {
-                anchor = (vTop)
+            if (hLeft) {
+                anchor = vTop
                     ? TextAnchor.UpperLeft
-                    : ((vCenter)
+                    : vCenter
                         ? TextAnchor.MiddleLeft
-                        : TextAnchor.LowerLeft);
+                        : TextAnchor.LowerLeft;
             }
-            else if(hCenter)
-            {
-                anchor = (vTop)
+            else if (hCenter) {
+                anchor = vTop
                     ? TextAnchor.UpperCenter
-                    : ((vCenter)
+                    : vCenter
                         ? TextAnchor.MiddleCenter
-                        : TextAnchor.LowerCenter);
+                        : TextAnchor.LowerCenter;
             }
-            else if(hRight)
-            {
+            else if (hRight) {
 
-                anchor = (vTop)
+                anchor = vTop
                     ? TextAnchor.UpperRight
-                    : ((vCenter)
+                    : vCenter
                         ? TextAnchor.MiddleRight
-                        : TextAnchor.LowerRight);
+                        : TextAnchor.LowerRight;
             }
 
-            if (prev != anchor)
-            {
+            if (prev != anchor) {
                 prop.intValue = (int)anchor;
                 prop.serializedObject.ApplyModifiedProperties();
             }
         }
 
-        bool DrawAlignIcon(GUIContent contentActive, GUIContent contentInactive, TextAlignment align, bool value)
-        {
+        private bool DrawAlignIcon(GUIContent contentActive, GUIContent contentInactive, TextAlignment align, bool value) {
             GUIStyle style = null;
 
-            switch (align)
-            {
+            switch (align) {
                 case TextAlignment.Left:
                     style = Styles.alignmentButtonLeft;
+
+
                     break;
                 case TextAlignment.Center:
                     style = Styles.alignmentButtonMid;
+
+
                     break;
                 case TextAlignment.Right:
                     style = Styles.alignmentButtonRight;
+
+
                     break;
             }
 
-            if (value)
-            {
+            if (value) {
                 EditorGUI.BeginDisabledGroup(true);
             }
 
             bool result = GUILayout.Toggle(value,
-                (value) ? contentActive : contentInactive,
-                style, GUILayout.ExpandWidth(false));
+                value ? contentActive : contentInactive,
+                style,
+                GUILayout.ExpandWidth(false));
 
-            if (value)
-            {
+            if (value) {
                 EditorGUI.EndDisabledGroup();
             }
+
 
             return result;
         }
 
 
-        private static class Styles
-        {
-            public static GUIStyle alignmentButtonLeft;
-            public static GUIStyle alignmentButtonMid;
-            public static GUIStyle alignmentButtonRight;
+        private static class Styles {
+            public static readonly GUIStyle alignmentButtonLeft;
+            public static readonly GUIStyle alignmentButtonMid;
+            public static readonly GUIStyle alignmentButtonRight;
             public static GUIContent EncodingContent;
-            public static GUIContent LeftAlign;
-            public static GUIContent CenterAlign;
-            public static GUIContent RightAlign;
-            public static GUIContent TopAlign;
-            public static GUIContent MiddleAlign;
-            public static GUIContent BottomAlign;
-            public static GUIContent LeftAlignActive;
-            public static GUIContent CenterAlignActive;
-            public static GUIContent RightAlignActive;
-            public static GUIContent TopAlignActive;
-            public static GUIContent MiddleAlignActive;
-            public static GUIContent BottomAlignActive;
+            public static readonly GUIContent LeftAlign;
+            public static readonly GUIContent CenterAlign;
+            public static readonly GUIContent RightAlign;
+            public static readonly GUIContent TopAlign;
+            public static readonly GUIContent MiddleAlign;
+            public static readonly GUIContent BottomAlign;
+            public static readonly GUIContent LeftAlignActive;
+            public static readonly GUIContent CenterAlignActive;
+            public static readonly GUIContent RightAlignActive;
+            public static readonly GUIContent TopAlignActive;
+            public static readonly GUIContent MiddleAlignActive;
+            public static readonly GUIContent BottomAlignActive;
 
-            static Styles()
-            {
+            static Styles() {
                 alignmentButtonLeft = new GUIStyle(EditorStyles.miniButtonLeft);
                 alignmentButtonMid = new GUIStyle(EditorStyles.miniButtonMid);
                 alignmentButtonRight = new GUIStyle(EditorStyles.miniButtonRight);
@@ -261,14 +250,12 @@ namespace TheraBytes.BetterUi.Editor
                 MiddleAlignActive = EditorGUIUtility.IconContent("GUISystem/align_vertically_center_active", "Middle Align");
                 BottomAlignActive = EditorGUIUtility.IconContent("GUISystem/align_vertically_bottom_active", "Bottom Align");
 
-                FixAlignmentButtonStyles(new GUIStyle[]{ alignmentButtonLeft, alignmentButtonMid, alignmentButtonRight });
+                FixAlignmentButtonStyles(alignmentButtonLeft, alignmentButtonMid, alignmentButtonRight);
             }
 
-            private static void FixAlignmentButtonStyles(params GUIStyle[] styles)
-            {
-                GUIStyle[] gUIStyleArray = styles;
-                for (int i = 0; i < (int)gUIStyleArray.Length; i++)
-                {
+            private static void FixAlignmentButtonStyles(params GUIStyle[] styles) {
+                var gUIStyleArray = styles;
+                for (int i = 0; i < gUIStyleArray.Length; i++) {
                     GUIStyle gUIStyle = gUIStyleArray[i];
                     gUIStyle.padding.left = 2;
                     gUIStyle.padding.right = 2;
@@ -276,8 +263,7 @@ namespace TheraBytes.BetterUi.Editor
             }
         }
 
-        private enum VerticalTextAligment
-        {
+        private enum VerticalTextAligment {
             Top,
             Middle,
             Bottom

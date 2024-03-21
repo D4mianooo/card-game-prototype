@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace TheraBytes.BetterUi.Editor
-{
-    public interface IWizard
-    {
+namespace TheraBytes.BetterUi.Editor {
+    public interface IWizard {
         int CurrentPageNumber { get; }
         int TotalPageCount { get; }
 

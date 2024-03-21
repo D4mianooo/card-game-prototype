@@ -1,33 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEditor;
 using UnityEditor.UI;
-using UnityEditorInternal;
-using UnityEngine;
 using UnityEngine.UI;
 
-namespace TheraBytes.BetterUi.Editor
-{
-    [CustomEditor(typeof(BetterToggle)), CanEditMultipleObjects]
-    public class BetterToggleEditor : ToggleEditor
-    {
-        BetterElementHelper<Toggle, BetterToggle> transitions = 
-            new BetterElementHelper<Toggle, BetterToggle>();
+namespace TheraBytes.BetterUi.Editor {
+    [CustomEditor(typeof(BetterToggle))] [CanEditMultipleObjects]
+    public class BetterToggleEditor : ToggleEditor {
 
-        BetterElementHelper<Toggle, BetterToggle> transitionsWhenOn =
-            new BetterElementHelper<Toggle, BetterToggle>("betterTransitionsWhenOn");
+        private readonly BetterElementHelper<Toggle, BetterToggle> OnOffTransitions = new("betterToggleTransitions");
 
-        BetterElementHelper<Toggle, BetterToggle> transitionsWhenOff =
-            new BetterElementHelper<Toggle, BetterToggle>("betterTransitionsWhenOff");
+        private readonly BetterElementHelper<Toggle, BetterToggle> transitions = new();
 
-        BetterElementHelper<Toggle, BetterToggle> OnOffTransitions =
-            new BetterElementHelper<Toggle, BetterToggle>("betterToggleTransitions");
+        private readonly BetterElementHelper<Toggle, BetterToggle> transitionsWhenOff = new("betterTransitionsWhenOff");
+
+        private readonly BetterElementHelper<Toggle, BetterToggle> transitionsWhenOn = new("betterTransitionsWhenOn");
 
 
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
             base.OnInspectorGUI();
 
             BetterToggle tgl = target as BetterToggle;
@@ -38,10 +26,9 @@ namespace TheraBytes.BetterUi.Editor
 
             serializedObject.ApplyModifiedProperties();
         }
-        
+
         [MenuItem("CONTEXT/Toggle/♠ Make Better")]
-        public static void MakeBetter(MenuCommand command)
-        {
+        public static void MakeBetter(MenuCommand command) {
             Toggle tgl = command.context as Toggle;
             Betterizer.MakeBetter<Toggle, BetterToggle>(tgl);
         }

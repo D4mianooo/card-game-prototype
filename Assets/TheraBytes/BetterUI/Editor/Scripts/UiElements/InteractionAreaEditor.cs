@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEditor;
+﻿using UnityEditor;
 
-namespace TheraBytes.BetterUi.Editor
-{
-    [CustomEditor(typeof(InteractionArea)), CanEditMultipleObjects]
-    public class InteractionAreaEditor : UnityEditor.Editor
-    {
-        SerializedProperty shapeProp, 
-            radiusFallbackProp, radiusConfigsProp,
+namespace TheraBytes.BetterUi.Editor {
+    [CustomEditor(typeof(InteractionArea))] [CanEditMultipleObjects]
+    public class InteractionAreaEditor : UnityEditor.Editor {
+
+        private InteractionArea ia;
+
+        private SerializedProperty shapeProp,
+            radiusFallbackProp,
+            radiusConfigsProp,
             raycastProp;
 
-        InteractionArea ia;
-
-        void OnEnable()
-        {
+        private void OnEnable() {
             ia = target as InteractionArea;
             shapeProp = serializedObject.FindProperty("ClickableShape");
             radiusFallbackProp = serializedObject.FindProperty("cornerRadiusFallback");
@@ -25,21 +20,18 @@ namespace TheraBytes.BetterUi.Editor
 
         }
 
-        public override void OnInspectorGUI()
-        {
+        public override void OnInspectorGUI() {
             EditorGUILayout.PropertyField(raycastProp);
             EditorGUILayout.Space();
 
             EditorGUILayout.PropertyField(shapeProp);
 
-            if(shapeProp.intValue == (int)InteractionArea.Shape.RoundedRectangle)
-            {
+            if (shapeProp.intValue == (int)InteractionArea.Shape.RoundedRectangle) {
                 ScreenConfigConnectionHelper.DrawSizerGui("Corner Radius", radiusConfigsProp, ref radiusFallbackProp);
                 ia.UpdateCornerRadius();
             }
 
             serializedObject.ApplyModifiedProperties();
         }
-
     }
 }

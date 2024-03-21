@@ -1,31 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace TheraBytes.BetterUi.Editor
-{
-    public class ResolutionMonitorPage : WizardPage
-    {
-        const int SMALL_SCREEN = 1 << 0;
-        const int BIG_SCREEN = 1 << 1;
+namespace TheraBytes.BetterUi.Editor {
+    public class ResolutionMonitorPage : WizardPage {
+        private const int SMALL_SCREEN = 1 << 0;
+        private const int BIG_SCREEN = 1 << 1;
+        private ValueWizardPageElement<bool> isFallbackLandscapeElement;
 
-        ValueWizardPageElement<Vector2> optimizedResolutionElement;
-        ValueWizardPageElement<bool> isFallbackLandscapeElement;
-        ValueWizardPageElement<bool> supportBothOrientationsElement;
-        ValueWizardPageElement<int> responsiveDesignElement;
-
-        public override string NameId { get { return "ResolutionMonitorPage"; } }
+        private ValueWizardPageElement<Vector2> optimizedResolutionElement;
+        private ValueWizardPageElement<int> responsiveDesignElement;
+        private ValueWizardPageElement<bool> supportBothOrientationsElement;
 
         public ResolutionMonitorPage(IWizard wizard)
-            : base(wizard)
-        {
+            : base(wizard) {
         }
 
-        protected override void OnInitialize()
-        {
+        public override string NameId => "ResolutionMonitorPage";
+
+        protected override void OnInitialize() {
             Add(new InfoWizardPageElement("Resolution Monitor Setup", InfoType.Header));
             Add(new InfoWizardPageElement(
                 "The Resolution Monitor is responsible for applying the correct sizes to your Better UI elements as well as detecting screen configurations.\n" +
@@ -35,26 +27,32 @@ namespace TheraBytes.BetterUi.Editor
             // optimized resolution
             Add(new SeparatorWizardPageElement());
             Add(new InfoWizardPageElement("♠ Which is the resolution your game is optimized for?"));
-            Add(new InfoWizardPageElement("The 'Optimized Resolution' is used as reference for resizing UI variables (like font size).\n" +
+            Add(new InfoWizardPageElement(
+                "The 'Optimized Resolution' is used as reference for resizing UI variables (like font size).\n" +
                 "If the artists also create their UI graphics for that resolution it will be easier to make the UI looking right.",
                 InfoType.InfoBox));
 
             optimizedResolutionElement = new ValueWizardPageElement<Vector2>("optimizedResolution",
                 (o, v) =>
                 {
-                    if (v == Vector2.zero)
-                    {
+                    if (v == Vector2.zero) {
                         v = new Vector2(1920, 1080);
                     }
 
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.PrefixLabel("Optimized Resolution");
                     v = EditorGUILayout.Vector2Field("", v);
-                    if (GUILayout.Button("Full HD")) v = new Vector2(1920, 1080);
-                    if (GUILayout.Button("UHD-4k")) v = new Vector2(3840, 2160);
+                    if (GUILayout.Button("Full HD")) {
+                        v = new Vector2(1920, 1080);
+                    }
+                    if (GUILayout.Button("UHD-4k")) {
+                        v = new Vector2(3840, 2160);
+                    }
                     EditorGUILayout.EndHorizontal();
 
                     DrawContinueButton(o);
+
+
                     return v;
                 });
 
@@ -72,6 +70,8 @@ namespace TheraBytes.BetterUi.Editor
                     EditorGUILayout.EndHorizontal();
 
                     DrawContinueButton(o);
+
+
                     return v;
                 });
             Add(isFallbackLandscapeElement);
@@ -88,6 +88,8 @@ namespace TheraBytes.BetterUi.Editor
                     EditorGUILayout.EndHorizontal();
 
                     DrawContinueButton(o);
+
+
                     return v;
                 });
             Add(supportBothOrientationsElement);
@@ -95,7 +97,8 @@ namespace TheraBytes.BetterUi.Editor
             // Responsive Design
             Add(new SeparatorWizardPageElement());
             Add(new InfoWizardPageElement("♠ Do you support Responsive Design for different screen sizes?"));
-            Add(new InfoWizardPageElement("With responsive design you can place certain elements at different locations or hide them " +
+            Add(new InfoWizardPageElement(
+                "With responsive design you can place certain elements at different locations or hide them " +
                 "depending on the screen size / orientation (or other parameters).\n" +
                 "You can also configure other variables differently for different screens (e.g. controlling the sizes of layout parameters differently)",
                 InfoType.InfoBox));
@@ -106,7 +109,8 @@ namespace TheraBytes.BetterUi.Editor
                     bool containsSmall = (v & SMALL_SCREEN) == SMALL_SCREEN;
                     bool containsBig = (v & BIG_SCREEN) == BIG_SCREEN;
 
-                    EditorGUILayout.LabelField("In addition to the default screen size, support differnt layouts for ... (multi-select allowed)");
+                    EditorGUILayout.LabelField(
+                        "In addition to the default screen size, support differnt layouts for ... (multi-select allowed)");
                     EditorGUILayout.BeginHorizontal();
                     containsSmall = GUILayout.Toggle(containsSmall, "Smaller Screens", EditorStyles.miniButtonLeft);
                     containsBig = GUILayout.Toggle(containsBig, "Larger Screens", EditorStyles.miniButtonRight);
@@ -115,6 +119,8 @@ namespace TheraBytes.BetterUi.Editor
                     v = (containsSmall ? SMALL_SCREEN : 0) | (containsBig ? BIG_SCREEN : 0);
 
                     DrawContinueButton(o);
+
+
                     return v;
                 });
             Add(responsiveDesignElement);
@@ -123,31 +129,29 @@ namespace TheraBytes.BetterUi.Editor
             // Generate!
             Add(new SeparatorWizardPageElement());
             Add(new InfoWizardPageElement("Generate Resolution Monitor", InfoType.Header));
-            Add(new InfoWizardPageElement("When you feel comfortable with the settings you made, go on and click the button below."));
-            var generateElement = new CustomWizardPageElement((o) =>
+            Add(new InfoWizardPageElement(
+                "When you feel comfortable with the settings you made, go on and click the button below."));
+            CustomWizardPageElement generateElement = new(o =>
             {
-                string suffix = (ResolutionMonitor.ScriptableObjectFileExists) ? " (overwrite existing)" : "";
-                if (GUILayout.Button("Generate Resolution Monitor!" + suffix, GUILayout.Height(50)))
-                {
+                string suffix = ResolutionMonitor.ScriptableObjectFileExists ? " (overwrite existing)" : "";
+                if (GUILayout.Button("Generate Resolution Monitor!" + suffix, GUILayout.Height(50))) {
                     if (!ResolutionMonitor.ScriptableObjectFileExists
-                        || EditorUtility.DisplayDialog("Are you sure?", 
-                            "Overwriting the current Resolution Monitor settings could break your UI! (some screen configuration references may get lost)", 
-                            "Overwrite!", "Cancel"))
-                    {
+                        || EditorUtility.DisplayDialog("Are you sure?",
+                            "Overwriting the current Resolution Monitor settings could break your UI! (some screen configuration references may get lost)",
+                            "Overwrite!",
+                            "Cancel")) {
                         GenerateResolutionMonitor();
                         o.MarkComplete();
-                    } 
+                    }
                 }
 
             });
             Add(generateElement);
 
-            if(ResolutionMonitor.ScriptableObjectFileExists)
-            {
+            if (ResolutionMonitor.ScriptableObjectFileExists) {
                 generateElement.MarkComplete();
             }
-            else
-            {
+            else {
                 // display only if resolution monitor was not present before.
                 Add(new InfoWizardPageElement("Resolution Monitor has been generated."));
             }
@@ -155,20 +159,19 @@ namespace TheraBytes.BetterUi.Editor
 
             // Extra info
             Add(new SeparatorWizardPageElement());
-            Add(new CustomWizardPageElement((o) =>
+            Add(new CustomWizardPageElement(o =>
             {
                 EditorGUILayout.HelpBox("You have configured your Resolution Monitor. " +
-                    "You can even add more configuratons and also trigger your own layouts via code. " +
-                    "This would require manual configuration of the Resolution Monitor and some deeper knowledge of the system.", MessageType.Info);
-                
+                                        "You can even add more configuratons and also trigger your own layouts via code. " +
+                                        "This would require manual configuration of the Resolution Monitor and some deeper knowledge of the system.",
+                    MessageType.Info);
+
                 EditorGUILayout.BeginHorizontal();
-                if(GUILayout.Button("Open Documentation"))
-                {
+                if (GUILayout.Button("Open Documentation")) {
                     Application.OpenURL("https://documentation.therabytes.de/better-ui/ScreenConfigurations.html");
                 }
 
-                if (GUILayout.Button("Edit Resolution Monitor"))
-                {
+                if (GUILayout.Button("Edit Resolution Monitor")) {
                     Selection.activeObject = ResolutionMonitor.Instance;
                 }
 
@@ -177,27 +180,23 @@ namespace TheraBytes.BetterUi.Editor
             }).MarkComplete());
         }
 
-        private void GenerateResolutionMonitor()
-        {
+        private void GenerateResolutionMonitor() {
             ResolutionMonitor.EnsureInstance();
-            var rm = ResolutionMonitor.Instance;
+            ResolutionMonitor rm = ResolutionMonitor.Instance;
             Vector2 lRes = optimizedResolutionElement.Value;
-            if(lRes.x < lRes.y)
-            {
+            if (lRes.x < lRes.y) {
                 lRes = new Vector2(lRes.y, lRes.x);
             }
 
-            Vector2 pRes = new Vector2(lRes.y, lRes.x);
+            Vector2 pRes = new(lRes.y, lRes.x);
 
             // fallback
             bool isLandscape = isFallbackLandscapeElement.Value;
-            if (isLandscape)
-            {
+            if (isLandscape) {
                 rm.FallbackName = "Landscape";
                 rm.SetOptimizedResolutionFallback(lRes);
             }
-            else
-            {
+            else {
                 rm.FallbackName = "Portrait";
                 rm.SetOptimizedResolutionFallback(pRes);
             }
@@ -207,8 +206,7 @@ namespace TheraBytes.BetterUi.Editor
             // both orientations
             ScreenTypeConditions alt = null;
             bool supportBoth = supportBothOrientationsElement.Value;
-            if (supportBoth)
-            {
+            if (supportBoth) {
                 alt = CreateScreenTypeCondition(!isLandscape, "", lRes, pRes);
                 // added later
             }
@@ -217,18 +215,16 @@ namespace TheraBytes.BetterUi.Editor
             bool containsSmall = (responsiveDesignElement.Value & SMALL_SCREEN) == SMALL_SCREEN;
             bool containsBig = (responsiveDesignElement.Value & BIG_SCREEN) == BIG_SCREEN;
 
-            var smallChecker = new IsScreenOfCertainSize(0, IsScreenOfCertainSize.DEFAULT_SMALL_THRESHOLD);
-            var bigChecker = new IsScreenOfCertainSize(IsScreenOfCertainSize.DEFAULT_LARGE_THRESHOLD, 9999999);
+            IsScreenOfCertainSize smallChecker = new(0, IsScreenOfCertainSize.DEFAULT_SMALL_THRESHOLD);
+            IsScreenOfCertainSize bigChecker = new(IsScreenOfCertainSize.DEFAULT_LARGE_THRESHOLD, 9999999);
 
 
             ScreenTypeConditions smallMain = null;
             ScreenTypeConditions smallAlt = null;
             ScreenTypeConditions bigMain = null;
             ScreenTypeConditions bigAlt = null;
-            if (supportBoth)
-            {
-                if (containsSmall)
-                {
+            if (supportBoth) {
+                if (containsSmall) {
                     smallAlt = CreateScreenTypeCondition(!isLandscape, " Small", lRes, pRes, smallChecker);
 
                     smallAlt.Fallbacks.Add(alt.Name);
@@ -237,15 +233,13 @@ namespace TheraBytes.BetterUi.Editor
                     rm.OptimizedScreens.Add(smallAlt);
                 }
 
-                if(containsBig)
-                {
+                if (containsBig) {
                     bigAlt = CreateScreenTypeCondition(!isLandscape, " Large", lRes, pRes, bigChecker);
 
                     bigAlt.Fallbacks.Add(alt.Name);
                     alt.Fallbacks.Add(bigAlt.Name);
 
-                    if (containsSmall)
-                    {
+                    if (containsSmall) {
                         bigAlt.Fallbacks.Add(smallAlt.Name);
                         smallAlt.Fallbacks.Add(bigAlt.Name);
                     }
@@ -253,28 +247,24 @@ namespace TheraBytes.BetterUi.Editor
                     rm.OptimizedScreens.Add(bigAlt);
                 }
 
-                
+
                 rm.OptimizedScreens.Add(alt);
             }
 
-            if (containsSmall)
-            {
+            if (containsSmall) {
                 smallMain = CreateScreenTypeCondition(isLandscape, " Small", lRes, pRes, smallChecker);
                 rm.OptimizedScreens.Add(smallMain);
 
-                if(smallAlt != null)
-                {
+                if (smallAlt != null) {
                     smallAlt.Fallbacks.Add(smallMain.Name);
                 }
             }
 
-            if (containsBig)
-            {
+            if (containsBig) {
                 bigMain = CreateScreenTypeCondition(isLandscape, " Large", lRes, pRes, bigChecker);
                 rm.OptimizedScreens.Add(bigMain);
 
-                if(bigAlt != null)
-                {
+                if (bigAlt != null) {
                     bigAlt.Fallbacks.Add(bigMain.Name);
                 }
             }
@@ -283,38 +273,37 @@ namespace TheraBytes.BetterUi.Editor
         }
 
         private ScreenTypeConditions CreateScreenTypeCondition(bool isLandscape, string nameSuffix, Vector2 lRes, Vector2 pRes,
-            IsScreenOfCertainSize sizeInfo = null)
-        {
-            string name = (isLandscape)
-                ? "Landscape" : "Portrait";
+                                                               IsScreenOfCertainSize sizeInfo = null) {
+            string name = isLandscape
+                ? "Landscape"
+                : "Portrait";
 
             name += nameSuffix;
 
-            var sct = new ScreenTypeConditions(name, typeof(IsCertainScreenOrientation));
+            ScreenTypeConditions sct = new(name, typeof(IsCertainScreenOrientation));
 
-            sct.OptimizedScreenInfo.Resolution = (isLandscape)
-                ? lRes : pRes;
+            sct.OptimizedScreenInfo.Resolution = isLandscape
+                ? lRes
+                : pRes;
 
-            sct.CheckOrientation.ExpectedOrientation = (isLandscape)
+            sct.CheckOrientation.ExpectedOrientation = isLandscape
                 ? IsCertainScreenOrientation.Orientation.Landscape
                 : IsCertainScreenOrientation.Orientation.Portrait;
 
             sct.CheckScreenSize.IsActive = sizeInfo != null;
-            if(sizeInfo != null)
-            {
+            if (sizeInfo != null) {
                 sct.CheckScreenSize.Units = sizeInfo.Units;
                 sct.CheckScreenSize.MeasureType = sizeInfo.MeasureType;
                 sct.CheckScreenSize.MinSize = sizeInfo.MinSize;
                 sct.CheckScreenSize.MaxSize = sizeInfo.MaxSize;
             }
 
+
             return sct;
         }
 
-        private static void DrawContinueButton(WizardPageElementBase o)
-        {
-            if (o.State == WizardElementState.WaitForInput && GUILayout.Button("Continue..."))
-            {
+        private static void DrawContinueButton(WizardPageElementBase o) {
+            if (o.State == WizardElementState.WaitForInput && GUILayout.Button("Continue...")) {
                 o.MarkComplete();
             }
         }
