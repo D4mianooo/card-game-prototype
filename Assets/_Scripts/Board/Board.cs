@@ -26,8 +26,7 @@ public class Board : MonoBehaviour {
         if (!_tiles.ContainsKey(coordinates)) {
             return null;
         }
-
-
+        
         return _tiles[coordinates];
     }
 
