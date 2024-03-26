@@ -13,6 +13,6 @@ public class UnitSpawnHandler : MonoBehaviour {
         if (tile._isBusy) return;
         
         tile._isBusy = true;
-        Instantiate(unit, tile.transform.position, Quaternion.identity);
+        Instantiate(unit, tile.transform.position, Quaternion.identity, tile.transform);
     }
 }

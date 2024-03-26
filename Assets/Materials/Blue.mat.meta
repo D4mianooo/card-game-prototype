@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: cc4783c76cd021348b3792de79bf2818
+=======
+guid: 6340b65d4da30e14a8536cac8b3ba860
+>>>>>>> feature/game-manager
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 2100000

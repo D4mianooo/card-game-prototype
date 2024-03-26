@@ -78,6 +78,10 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
+<<<<<<< HEAD
     - _Color: {r: 0.23495908, g: 0.3141863, b: 0.9056604, a: 1}
+=======
+    - _Color: {r: 0.046991818, g: 0.3690085, b: 0.9056604, a: 1}
+>>>>>>> feature/game-manager
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
