@@ -7,7 +7,7 @@ public class UnitContoller : MonoBehaviour {
         _currentTile = Board.Instance.GetTile(Mouse3D.Instance.GetMouseWorldPosition());
     }
     private void OnMouseDrag() {
-        FollowMouse3D();
+        FollowMouse();
     }
     private void OnMouseUp() {
         Tile tile = Board.Instance.GetTile(Mouse3D.Instance.GetMouseWorldPosition());
@@ -30,7 +30,7 @@ public class UnitContoller : MonoBehaviour {
         transform.parent.position = tile.transform.position;
     }
 
-    private void FollowMouse3D() {
+    private void FollowMouse() {
         transform.parent.position = Mouse3D.Instance.GetMouseWorldPosition();
     }
 }
