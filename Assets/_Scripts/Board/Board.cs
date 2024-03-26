@@ -39,8 +39,11 @@ public class Board : MonoBehaviour {
     }
 
     private void GenerateGrid() {
-        for (int y = 0; y < _y; y++) {
-            for (int x = 0; x < _x; x++) {
+        int offsetX = (int)transform.position.x;
+        int offsetY = (int)transform.position.y;
+        
+        for (int y = offsetY; y < _y + offsetY; y++) {
+            for (int x = offsetX; x < _x + offsetX; x++) {
                 Vector3 position = new(x * _cellSize, 0f, y * _cellSize);
                 Tile instantiate = Instantiate(_tilePrefab, position, Quaternion.identity, transform);
                 _tiles.Add(ParsePositionToCoordinates(position), instantiate);
