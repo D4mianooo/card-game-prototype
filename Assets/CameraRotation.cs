@@ -5,32 +5,36 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 public class CameraRotation : MonoBehaviour {
-    // [SerializeField] private Transform _redAttack;
+    [SerializeField] private Transform _redAttack;
     [SerializeField] private Transform _redPlacement;
     [SerializeField] private Transform _blueAttack;
     [SerializeField] private Transform _bluePlacement;
     
     private void OnEnable() {
-        GameManager.Instance.OnGameStateChanged += MoveCamera;
+        GameManager.Instance.OnGameStateChanged += HandleCamera;
     }
     private void OnDisable() {
-        GameManager.Instance.OnGameStateChanged -= MoveCamera;
+        GameManager.Instance.OnGameStateChanged -= HandleCamera;
     }
-    private void MoveCamera(GameState state) {
+    private void HandleCamera(GameState state) {
         switch (state) {
+            case GameState.RedAttack:
+                RotateCamera(_redAttack);
+                break;
             case GameState.RedPlacement:
-                transform.position = _redPlacement.position;
-                transform.rotation = _redPlacement.rotation;
+                RotateCamera(_redPlacement);
                 break;
             case GameState.BlueAttack:
-                transform.position = _blueAttack.position;
-                transform.rotation = _blueAttack.rotation;
+                RotateCamera(_blueAttack);
                 break;
             case GameState.BluePlacement:
-                transform.position = _bluePlacement.position;
-                transform.rotation = _bluePlacement.rotation;
+                RotateCamera(_bluePlacement);
                 break;
         }
+    }
+    private void RotateCamera(Transform target) {
+        transform.position = target.position;
+        transform.rotation = target.rotation;
     }
 }
 
