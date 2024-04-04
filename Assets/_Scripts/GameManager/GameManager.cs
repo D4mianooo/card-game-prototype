@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour {
 
     private GameState _currentState;
     private void Awake() {
+        DontDestroyOnLoad(this);
         Instance = this;
         _rounds = new List<GameState>();
         InitializeRoundsList();

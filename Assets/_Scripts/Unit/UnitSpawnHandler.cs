@@ -11,8 +11,15 @@ public class UnitSpawnHandler : MonoBehaviour {
     private void SpawnUnit(Unit unit, Tile tile) {
         if (tile == null) return;
         if (tile._isBusy) return;
-        
         tile._isBusy = true;
-        Instantiate(unit, tile.transform.position, Quaternion.identity, tile.transform);
+        Vector3 spawn = ComputeSpawnPosition(tile);
+        Instantiate(unit, spawn, Quaternion.identity);
+    }
+    private Vector3 ComputeSpawnPosition(Tile tile) {
+        Vector3 spawn = tile.transform.position;
+        spawn.y = 0.25f;
+
+
+        return spawn;
     }
 }
