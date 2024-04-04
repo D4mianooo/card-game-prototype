@@ -16,18 +16,18 @@
 //
 //         rootVisualElement.Query<Button>("Generate").First().clicked += () =>
 //         {
-//             BoardGenerator boardGenerator = target as BoardGenerator;
+//             Board boardGenerator = target as Board;
 //             if (boardGenerator == null) return;
 //             boardGenerator.GenerateGrid();
 //         };
 //         rootVisualElement.Query<Button>("Clear").First().clicked += () =>
 //         {
-//             BoardGenerator boardGenerator = target as BoardGenerator;
+//             Board boardGenerator = target as Board;
 //             if (boardGenerator == null) return;
 //             boardGenerator.ClearGrid();
 //         };
 //         return rootVisualElement;
 //     }
 // }
-
-
+//
+//
