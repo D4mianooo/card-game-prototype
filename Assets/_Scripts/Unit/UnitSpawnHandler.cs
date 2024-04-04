@@ -4,7 +4,7 @@ public class UnitSpawnHandler : MonoBehaviour {
     [SerializeField] private Unit _unit;
     private void Update() {
         if (Input.GetMouseButtonDown(0)) {
-            Tile tile = Board.Instance.GetTile(Mouse3D.Instance.GetMouseWorldPosition());
+            Tile tile = BoardGenerator.Instance.GetTile(Mouse3D.Instance.GetMouseWorldPosition());
             SpawnUnit(_unit, tile);
         }
     }

@@ -1,53 +1,23 @@
+﻿using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine;
-using Utils;
-
-public class Board : MonoBehaviour {
-    public static Board Instance;
-
-    [SerializeField] private Tile _tilePrefab;
-    [SerializeField] private int _x;
-    [SerializeField] private int _y;
-    [SerializeField] private float _cellSize;
-
-    private Dictionary<Vector2, Tile> _tiles;
-
-    private void Awake() {
-        Instance = this;
+public class Board {
+    public Board(int x, int y, Tile tile) {
+        _x = x;
+        _y = y;
+        _tile = tile;
     }
-
-    private void Start() {
-        _tiles = new Dictionary<Vector2, Tile>();
-        GenerateGrid();
-    }
-
-    public Tile GetTile(Vector3 position) {
-        Vector2 coordinates = ParsePositionToCoordinates(position);
-        if (!_tiles.ContainsKey(coordinates)) {
-            return null;
-        }
-        
-        return _tiles[coordinates];
-    }
-
-    private Vector2 ParsePositionToCoordinates(Vector3 position) {
-        position = Vectors.Round(position);
-        Vector2 coordinates = new(position.x, position.z);
-
-
-        return coordinates;
-    }
-
-    private void GenerateGrid() {
-        int offsetX = (int)transform.position.x;
-        int offsetY = (int)transform.position.y;
-        
-        for (int y = offsetY; y < _y + offsetY; y++) {
-            for (int x = offsetX; x < _x + offsetX; x++) {
-                Vector3 position = new(x * _cellSize, 0f, y * _cellSize);
-                Tile instantiate = Instantiate(_tilePrefab, position, Quaternion.identity, transform);
-                _tiles.Add(ParsePositionToCoordinates(position), instantiate);
+    private int _x;
+    private int _y;
+    private Tile _tile;
+    public Tile Tile => _tile;
+    public List<Vector3> Create(int xSize, int ySize, int cellSize) {
+        List<Vector3> tiles = new List<Vector3>();
+        for (int y = _y; y < _y + ySize; y++) {
+            for (int x = _x; x < _x + xSize; x++) {
+                Vector3 position = new(x * cellSize, 0f, y * cellSize);
+                tiles.Add(position);
             }
         }
+        return tiles;
     }
 }
