@@ -12,7 +12,7 @@ public class TileColorHandler : MonoBehaviour {
         _hoverColor = Color.green;
     }
 
-    private void OnMouseExit() {
+    private void OnMouseExit() {    
         _meshRenderer.material.color = _defaultColor;
     }
     private void OnMouseOver() {

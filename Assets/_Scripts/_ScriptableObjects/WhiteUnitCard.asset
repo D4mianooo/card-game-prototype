@@ -9,7 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c83cc861dbc0ff4db09eb16ac51a90a, type: 3}
-  m_Name: UnitTest
+  m_Script: {fileID: 11500000, guid: 4ccd0eec03de2cb4b8737ad85ee4653b, type: 3}
+  m_Name: WhiteUnitCard
   m_EditorClassIdentifier: 
-  name: Rincewind
+  Image: {fileID: 607831742, guid: 6eb16e372762d6b4cb708c44ebfab931, type: 3}
+  Name: Kacperek
+  Unit: {fileID: 5122443176964022919, guid: 878d592e9a4520249b97f6608a87e3af, type: 3}

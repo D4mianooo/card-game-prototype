@@ -19,7 +19,6 @@ public class Mouse3D : MonoBehaviour {
             return Vector3.zero;
         }
 
-
         return hit.point;
     }
 }

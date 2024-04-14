@@ -1,25 +1,20 @@
+using System;
 using UnityEngine;
 
 public class UnitSpawnHandler : MonoBehaviour {
-    [SerializeField] private Unit _unit;
+    [SerializeField] private Unit _unitPrefab;
     private void Update() {
-        if (Input.GetMouseButtonDown(0)) {
-            Tile tile = BoardGenerator.Instance.GetTile(Mouse3D.Instance.GetMouseWorldPosition());
-            SpawnUnit(_unit, tile);
-        }
+        if (!Input.GetKeyDown(KeyCode.Mouse0)) return;
+        Vector3 mousePosition = Mouse3D.Instance.GetMouseWorldPosition();
+        if(!BoardGenerator.Instance.GetTile(mousePosition)) return;
+        Tile tile = BoardGenerator.Instance.GetTile(mousePosition);
+        if(tile.IsOccupied()) return; 
+        
+        SpawnUnit(tile, _unitPrefab);
+        tile.SetOccupied(_unitPrefab);
     }
-    private void SpawnUnit(Unit unit, Tile tile) {
-        if (tile == null) return;
-        if (tile._isBusy) return;
-        tile._isBusy = true;
-        Vector3 spawn = ComputeSpawnPosition(tile);
-        Instantiate(unit, spawn, Quaternion.identity);
-    }
-    private Vector3 ComputeSpawnPosition(Tile tile) {
-        Vector3 spawn = tile.transform.position;
-        spawn.y = 0.25f;
-
-
-        return spawn;
+    private void SpawnUnit(Tile tile, Unit unit) {
+        Unit unitInstance = Instantiate(unit, tile.transform.position, Quaternion.identity);
+        unitInstance.SetTile(tile);
     }
 }
