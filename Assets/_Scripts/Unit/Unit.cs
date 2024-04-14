@@ -5,11 +5,6 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 public class Unit : MonoBehaviour {
-        [SerializeField] private UnitScriptableObject _scriptableObject;
-  
-        public string GetName() {
-                return _scriptableObject.name;
-        }
 
                         
 }

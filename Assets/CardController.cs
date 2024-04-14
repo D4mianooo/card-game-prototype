@@ -4,17 +4,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CardController : MonoBehaviour {
-    private Vector3 original;
-    private void Start() {
-        original = transform.position;
+    [SerializeField] private Card _card;
+    [SerializeField] private static Action<Card> OnCardPlayed;
+    private void Awake() {
+        _card = GetComponentInParent<Card>();
     }
     private void OnMouseDown() {
-        transform.position = original + Vector3.up;
-    }           
-    private void OnMouseDrag() {
-        transform.position = Mouse3D.Instance.GetMouseWorldPosition() + Vector3.up;
+        PlayCard();
     }
-    private void OnMouseUp() {
-        transform.position = original;
+    private void PlayCard() {
+        if (OnCardPlayed != null) {
+            OnCardPlayed(_card);
+        }
+        transform.parent.rotation = Quaternion.Euler(0, 90f, 0f);
     }
 }
+    
