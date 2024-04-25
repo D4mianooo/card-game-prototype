@@ -6,7 +6,6 @@ public class BoardGenerator : MonoBehaviour {
     public static BoardGenerator Instance;
 
     [SerializeField] private Tile _redTilePrefab;
-    [SerializeField] private Tile _blueTilePrefab;
     [SerializeField] private int _x;
     [SerializeField] private int _y;
     [SerializeField] private int _cellSize;
@@ -21,10 +20,8 @@ public class BoardGenerator : MonoBehaviour {
         _tiles = new Dictionary<Vector3, Tile>();
         
         Board redBoard = new Board(0, 0, _redTilePrefab);
-        Board blueBoard = new Board(6, 0, _blueTilePrefab);
-        
-        GenerateBoard(redBoard);
-        GenerateBoard(blueBoard);
+
+        GenerateBoard(redBoard, 5, 5);
 
     }
 
@@ -42,8 +39,8 @@ public class BoardGenerator : MonoBehaviour {
         return coordinates;
     }
 
-    private void GenerateBoard(Board board) {
-        List<Vector3> coordinates = board.Create(_x, _y, _cellSize);
+    private void GenerateBoard(Board board, int width, int height) {
+        List<Vector3> coordinates = board.Create(width, height, _cellSize);
         foreach (Vector3 position in coordinates) {
             Tile tile = Instantiate(board.Tile, position, Quaternion.identity, transform);
             _tiles.Add(position, tile);

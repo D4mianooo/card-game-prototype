@@ -17,6 +17,6 @@ public class UnitNameDisplay : MonoBehaviour {
         UnitNotifier.SelectedUnitChanged -= UpdateText;
     }
     private void UpdateText(Unit unit) {
-        _text.text = $"CURRENT UNIT: {unit.GetName()}";
+        _text.text = $"CURRENT UNIT:";
     }
 }

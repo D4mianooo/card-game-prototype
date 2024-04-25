@@ -5,11 +5,12 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 public class Unit : MonoBehaviour {
-        [SerializeField] private UnitScriptableObject _scriptableObject;
-  
-        public string GetName() {
-                return _scriptableObject.name;
-        }
-
-                        
+    private Tile _placedOn;
+    
+    public void Move(Tile _target) {
+        
+    }
+    public void SetTile(Tile tile) {
+        _placedOn = tile;
+    }
 }
